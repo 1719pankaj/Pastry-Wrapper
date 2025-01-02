@@ -1,0 +1,55 @@
+[versions]
+agp = "8.7.3"
+kotlin = "2.0.21"
+coreKtx = "1.15.0"
+junit = "4.13.2"
+junitVersion = "1.2.1"
+espressoCore = "3.6.1"
+appcompat = "1.7.0"
+material = "1.12.0"
+constraintlayout = "2.2.0"
+navigationFragmentKtx = "2.8.5"
+navigationUiKtx = "2.8.5"
+generativeai = "0.9.0"
+notiesCore = "4.6.2"
+prism4j = "2.1.0"
+prism4jBundler = "2.1.0"
+room = "2.6.1"
+securityCrypto = "1.1.0-alpha06"
+securityCryptoVersion = "1.1.0-alpha03"
+
+[libraries]
+androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
+androidx-security-crypto = { module = "androidx.security:security-crypto", version.ref = "securityCrypto" }
+androidx-security-crypto-v110alpha03 = { module = "androidx.security:security-crypto", version.ref = "securityCryptoVersion" }
+ext-strikethrough = { module = "io.noties.markwon:ext-strikethrough", version.ref = "notiesCore" }
+ext-tables = { module = "io.noties.markwon:ext-tables", version.ref = "notiesCore" }
+ext-tasklist = { module = "io.noties.markwon:ext-tasklist" }
+html = { module = "io.noties.markwon:html" }
+image = { module = "io.noties.markwon:image" }
+inline-parser = { module = "io.noties.markwon:inline-parser" }
+io-noties-markwon-ext-latex6 = { module = "io.noties.markwon:ext-latex" }
+junit = { group = "junit", name = "junit", version.ref = "junit" }
+androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
+androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
+androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
+linkify = { module = "io.noties.markwon:linkify", version.ref = "notiesCore" }
+material = { group = "com.google.android.material", name = "material", version.ref = "material" }
+androidx-constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintlayout" }
+androidx-navigation-fragment-ktx = { group = "androidx.navigation", name = "navigation-fragment-ktx", version.ref = "navigationFragmentKtx" }
+androidx-navigation-ui-ktx = { group = "androidx.navigation", name = "navigation-ui-ktx", version.ref = "navigationUiKtx" }
+generativeai = { group = "com.google.ai.client.generativeai", name = "generativeai", version.ref = "generativeai" }
+androidx-room-runtime = { group = "androidx.room", name = "room-runtime", version.ref = "room" }
+androidx-room-compiler = { group = "androidx.room", name = "room-compiler", version.ref = "room" }
+androidx-room-ktx = { group = "androidx.room", name = "room-ktx", version.ref = "room" }
+noties-core = { module = "io.noties.markwon:core", version.ref = "notiesCore" }
+prism4j = { module = "io.noties.prism4j:prism4j", version.ref = "prism4j" }
+prism4j-bundler = { module = "io.noties:prism4j-bundler", version.ref = "prism4jBundler" }
+recycler = { module = "io.noties.markwon:recycler" }
+recycler-table = { module = "io.noties.markwon:recycler-table" }
+syntax-highlight = { module = "io.noties.markwon:syntax-highlight", version.ref = "notiesCore" }
+
+[plugins]
+android-application = { id = "com.android.application", version.ref = "agp" }
+kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+

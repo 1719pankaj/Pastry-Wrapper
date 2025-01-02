@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="purple_200">#FFBB86FC</color>
+    <color name="purple_500">#FF6200EE</color>
+    <color name="purple_700">#FF3700B3</color>
+    <color name="teal_200">#FF03DAC5</color>
+    <color name="teal_700">#FF018786</color>
+    <color name="black">#FF000000</color>
+    <color name="dark_grey">#4c4c4c</color>
+    <color name="grey">#989898</color>
+    <color name="light_grey">#e4e4e4</color>
+    <color name="dark_white">#F2F2F2</color>
+    <color name="white">#FFFFFFFF</color>
+<!--    <color name="userMessageBackground">#BBDEFB</color>-->
+<!--    <color name="receivedMessageBackground">#E9D5FF</color>-->
+    <color name="linkColor">#2196F3</color>
+    <color name="userMessageBackground">#E3F2FD</color>
+    <color name="receivedMessageBackground">#FFFFFF</color>
+    <color name="code_background">#2B2B2B</color>
+    <color name="code_text">#A9B7C6</color>
+    <color name="success_green">#e3f7e7</color>
+    <color name="failure_red">#3DD30812</color>
+    <color name="disabled_grey">#c4c4c4</color>
+</resources>
