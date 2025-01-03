@@ -20,7 +20,8 @@ data class Message(
     val id: Int = 0,
     val chatId: Long,
     val text: String,
+    val thought: String? = null,  // New field for thought content
     val isUser: Boolean,
-    val modelName: String? = null, // Null for user messages, model name for assistant messages
+    val modelName: String? = null,
     val timestamp: Long = System.currentTimeMillis()
 )

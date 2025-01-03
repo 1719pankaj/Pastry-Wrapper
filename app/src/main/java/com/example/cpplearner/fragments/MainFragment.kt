@@ -8,11 +8,14 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.NavHostFragment
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.room.Room
 import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKeys
 import com.example.cpplearner.MainActivity
+import com.example.cpplearner.R
 import com.example.cpplearner.adapter.MainFragmentRecyclerAdapter
 import com.example.cpplearner.databinding.FragmentMainBinding
 import com.example.cpplearner.gemini.Gemini
@@ -59,6 +62,11 @@ class MainFragment : Fragment() {
             }
         }
 
+        binding.buttonSend.setOnLongClickListener{
+            findNavController().navigate(R.id.action_mainFragment_to_debugFragment)
+            true
+        }
+
         return binding.root
     }
 
@@ -83,6 +91,7 @@ class MainFragment : Fragment() {
     override fun onResume() {
         super.onResume()
         initializeGemini()
+        loadMessages()
     }
 
     private fun getEncryptedPreferences(): SharedPreferences {
@@ -164,34 +173,37 @@ class MainFragment : Fragment() {
             binding.editTextMessage.text.clear()
         }
 
-        // Insert user message
         val userMessage = Message(
             text = messageText,
+            thought = null,
             isUser = true,
-            chatId = currentChatId,
-            modelName = null // User messages don't have a model
+            chatId = currentChatId
         )
         messageDao.insert(userMessage)
         updateMessages()
 
-        // Create initial bot message
         val botMessage = Message(
             text = "",
+            thought = "",
             isUser = false,
             chatId = currentChatId,
-            modelName = gemini.modelName // Store the current model name
+            modelName = gemini.modelName
         )
         currentMessageId = messageDao.insert(botMessage)
 
-        var fullResponse = ""
-
         try {
-            gemini.sendMessageStream(messageText).collect { partialResponse ->
-                fullResponse += partialResponse
+            var finalText = ""
+            var finalThought = ""
+
+            gemini.sendMessageStream(messageText).collect { (text, thought) ->
+                finalText += text
+                finalThought += thought
+
                 currentMessageId?.let { id ->
                     val updatedMessage = Message(
                         id = id.toInt(),
-                        text = fullResponse,
+                        text = if (finalText.isNotBlank()) finalText.trimStart() else finalThought,
+                        thought = if (finalText.isNotBlank()) finalThought.trimStart() else "",
                         isUser = false,
                         chatId = currentChatId,
                         modelName = gemini.modelName
@@ -206,6 +218,7 @@ class MainFragment : Fragment() {
             Log.e(TAG, "Error in streaming", e)
         }
     }
+
 
     private fun updateMessages() {
         lifecycleScope.launch(Dispatchers.Main) {

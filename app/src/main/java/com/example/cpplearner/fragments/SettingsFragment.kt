@@ -83,6 +83,7 @@ class SettingsFragment : Fragment() {
             val geminiPricingDetailsTextView = radioButtonLayout.findViewById<TextView>(R.id.geminiPricingDetailsTextView)
             val geminiRateLimitsDetailsTextView = radioButtonLayout.findViewById<TextView>(R.id.geminiRateLimitsDetailsTextView)
             val geminiKnowledgeCutoffDetailsTextView = radioButtonLayout.findViewById<TextView>(R.id.geminiKnowledgeCutoffDetailsTextView)
+            val geminiSpecialFlagsDetailsTextView = radioButtonLayout.findViewById<TextView>(R.id.geminiSpecialFlagsDetailsTextView)
 
             // Remove the RadioButton from its parent
             (geminiRadioButton.parent as? ViewGroup)?.removeView(geminiRadioButton)
@@ -101,6 +102,8 @@ class SettingsFragment : Fragment() {
             geminiPricingDetailsTextView.text = "${modelConfig.inputPricing}\n${modelConfig.outputPricing}"
             geminiRateLimitsDetailsTextView.text = modelConfig.rateLimits
             geminiKnowledgeCutoffDetailsTextView.text = modelConfig.knowledgeCutoff
+            geminiSpecialFlagsDetailsTextView.text = modelConfig.specialFlags.joinToString(", ")
+
 
             geminiRadioButton.setOnCheckedChangeListener { buttonView, isChecked ->
                 if (isChecked) {

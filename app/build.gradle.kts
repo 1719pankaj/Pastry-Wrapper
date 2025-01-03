@@ -53,14 +53,26 @@ dependencies {
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)
     ksp(libs.androidx.room.compiler)
-    implementation(libs.noties.core)
-    implementation(libs.syntax.highlight)
-    implementation(libs.ext.tables)
-    implementation(libs.ext.strikethrough)
-    implementation(libs.linkify)
 
-//    implementation(libs.prism4j)
-//    implementation(libs.prism4j.bundler)
+    implementation("io.noties.markwon:core:4.6.2") {
+        exclude(group = "com.atlassian.commonmark", module = "commonmark") // Exclude directly in markwon
+    }
+    implementation(libs.syntax.highlight) {
+        exclude(group = "com.atlassian.commonmark", module = "commonmark")
+    }
+    implementation(libs.ext.tables) {
+        exclude(group = "com.atlassian.commonmark", module = "commonmark")
+    }
+    implementation(libs.ext.strikethrough) {
+        exclude(group = "com.atlassian.commonmark", module = "commonmark")
+    }
+    implementation(libs.linkify) {
+        exclude(group = "com.atlassian.commonmark", module = "commonmark")
+    }
+
+    // Explicitly include the desired commonmark version
+    implementation("com.atlassian.commonmark:commonmark:0.13.0")
+
     implementation(libs.androidx.security.crypto.v110alpha03)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
@@ -69,7 +81,7 @@ dependencies {
     implementation(libs.androidx.navigation.fragment.ktx)
     implementation(libs.androidx.navigation.ui.ktx)
 //    implementation(libs.generativeai)
-    implementation("com.google.ai.client.generativeai:generativeai:0.9.0")
+    implementation(libs.generativeai)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

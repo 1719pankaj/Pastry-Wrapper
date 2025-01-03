@@ -25,4 +25,8 @@ interface ChatDao {
 
     @Query("DELETE FROM chats WHERE chatId NOT IN (SELECT DISTINCT chatId FROM messages)")
     suspend fun deleteEmptyChats()
+
+    @Query("DELETE FROM chats WHERE chatId = :chatId")
+    suspend fun deleteChat(chatId: Long)
+
 }

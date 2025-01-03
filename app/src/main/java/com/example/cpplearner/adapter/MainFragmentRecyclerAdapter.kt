@@ -1,5 +1,6 @@
 package com.example.cpplearner.adapter
 
+import CodeBlockPlugin
 import android.annotation.SuppressLint
 import android.content.ClipData
 import android.content.ClipboardManager
@@ -63,39 +64,50 @@ class MainFragmentRecyclerAdapter(private var messages: List<Message>,
                     .usePlugin(LinkifyPlugin.create())
                     .usePlugin(StrikethroughPlugin.create())
                     .usePlugin(TablePlugin.create(binding.root.context))
+                    .usePlugin(CodeBlockPlugin(binding.root.context))
                     .build()
+            }
+
+            // Set visibility and content for thought
+            if (!message.isUser && !message.thought.isNullOrBlank()) {
+                binding.textViewThought.visibility = View.VISIBLE
+                binding.textViewThought.text = message.thought
+            } else {
+                binding.textViewThought.visibility = View.GONE
             }
 
             // Apply markdown formatting - keep text rendering simple for streaming messages
             binding.textViewMessage.text = message.text
             if (!message.isUser) {
                 markwon.setMarkdown(binding.textViewMessage, message.text)
+                if(!message.thought.isNullOrBlank())
+                    markwon.setMarkdown(binding.textViewThought, message.thought)
             }
 
-            // Adjust message alignment and background
             val constraintSet = ConstraintSet()
             constraintSet.clone(binding.root as ConstraintLayout)
 
             if (message.isUser) {
                 constraintSet.connect(
-                    binding.cardViewMessage.id,
+                    binding.textViewMessage.id,
                     ConstraintSet.END,
                     ConstraintSet.PARENT_ID,
                     ConstraintSet.END
                 )
-                constraintSet.clear(binding.cardViewMessage.id, ConstraintSet.START)
-                binding.cardViewMessage.setCardBackgroundColor(
-                    ContextCompat.getColor(binding.root.context, R.color.userMessageBackground)
-                )
+                constraintSet.clear(binding.textViewMessage.id, ConstraintSet.START)
+                binding.textViewMessage.setBackgroundResource(R.drawable.item_message_bg)
+
+                // Hide thought for user messages
+                binding.textViewThought.visibility = View.GONE
             } else {
                 constraintSet.connect(
-                    binding.cardViewMessage.id,
+                    binding.textViewMessage.id,
                     ConstraintSet.START,
                     ConstraintSet.PARENT_ID,
                     ConstraintSet.START
                 )
-                constraintSet.clear(binding.cardViewMessage.id, ConstraintSet.END)
-                binding.cardViewMessage.setCardBackgroundColor(
+                constraintSet.clear(binding.textViewMessage.id, ConstraintSet.END)
+                binding.textViewMessage.setBackgroundColor(
                     ContextCompat.getColor(binding.root.context, R.color.receivedMessageBackground)
                 )
             }

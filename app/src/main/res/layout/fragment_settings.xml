@@ -17,38 +17,36 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"/>
 
-    <androidx.cardview.widget.CardView
-        android:id="@+id/editTextMessageCard"
+
+
+    <EditText
+        android:id="@+id/editTextMessage"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_margin="16dp"
-        app:cardCornerRadius="10dp"
-        app:cardElevation="5dp"
+        android:layout_marginVertical="16dp"
+        android:layout_marginHorizontal="16dp"
+        android:layout_weight="1"
+        android:background="@drawable/floating_bg"
+        android:hint="Enter API Key [ AIzXxxxXXXxxXxXX ]"
+        android:inputType="text"
+        android:padding="8dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/geminiLable">
+        app:layout_constraintTop_toBottomOf="@+id/geminiLable"/>
 
-        <EditText
-            android:id="@+id/editTextMessage"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:background="@drawable/floating_bg"
-            android:hint="Enter API Key [ AIzXxxxXXXxxXxXX ]"
-            android:inputType="text"
-            android:padding="8dp" />
+    <ProgressBar
+        android:id="@+id/validationProgressIndicator"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="end"
+        android:scaleX="0.6"
+        android:scaleY="0.6"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="@+id/editTextMessage"
+        app:layout_constraintEnd_toEndOf="@+id/editTextMessage"
+        app:layout_constraintTop_toTopOf="@+id/editTextMessage"
+        tools:visibility="visible" />
 
-        <ProgressBar
-            android:id="@+id/validationProgressIndicator"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:scaleX="0.6"
-            android:scaleY="0.6"
-            android:layout_gravity="end"
-            android:visibility="invisible"
-            tools:visibility="visible"/>
-
-    </androidx.cardview.widget.CardView>
 
     <TextView
         android:id="@+id/validationStatus"
@@ -58,12 +56,13 @@
         android:background="@color/success_green"
         android:padding="2dp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/editTextMessageCard"
+        app:layout_constraintTop_toBottomOf="@+id/editTextMessage"
         tools:text="Validation Sucessful"
         android:visibility="invisible"
         tools:visibility="visible" />
 
     <ScrollView
+        android:id="@+id/scrollView2"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_margin="32dp"
@@ -76,7 +75,7 @@
             android:id="@+id/radioGroup"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"/>
+            android:orientation="vertical" />
     </ScrollView>
 
     <Button

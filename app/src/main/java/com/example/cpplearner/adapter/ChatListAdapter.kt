@@ -10,7 +10,8 @@ import com.example.cpplearner.roomDB.Chat
 
 class ChatListAdapter(
     private var chats: List<Chat>,
-    private val onChatSelected: (Long) -> Unit
+    private val onChatSelected: (Long) -> Unit,
+    private val onChatLongPressed: (Long) -> Unit
 ) : RecyclerView.Adapter<ChatListAdapter.ChatViewHolder>() {
 
     class ChatViewHolder(view: View) : RecyclerView.ViewHolder(view) {
@@ -29,6 +30,10 @@ class ChatListAdapter(
         holder.summaryText.text = chat.summary
         holder.timestampText.text = formatTimestamp(chat.timestamp)
         holder.itemView.setOnClickListener { onChatSelected(chat.chatId) }
+        holder.itemView.setOnLongClickListener {
+            onChatLongPressed(chat.chatId)
+            true
+        }
     }
 
     override fun getItemCount() = chats.size

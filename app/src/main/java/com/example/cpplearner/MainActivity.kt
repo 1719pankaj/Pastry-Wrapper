@@ -6,7 +6,9 @@ import android.util.Log
 import android.view.View
 import android.view.WindowInsetsController
 import android.widget.ImageView
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.content.ContextCompat
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
@@ -40,6 +42,9 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // Force light mode
+        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
 
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
@@ -135,12 +140,14 @@ class MainActivity : AppCompatActivity() {
         val navigationView: NavigationView = findViewById(R.id.navigation_view)
         val headerView = navigationView.getHeaderView(0)
         val chatsRecyclerView = headerView.findViewById<RecyclerView>(R.id.chats_recycler_view)
-        chatListAdapter = ChatListAdapter(emptyList()) { chatId ->
+        chatListAdapter = ChatListAdapter(emptyList(), { chatId ->
             lifecycleScope.launch {
                 loadChat(chatId)
                 drawerLayout.closeDrawer(GravityCompat.START)
             }
-        }
+        }, { chatId ->
+            showDeleteChatDialog(chatId)
+        })
 
         chatsRecyclerView.apply {
             layoutManager = LinearLayoutManager(this@MainActivity).apply {
@@ -183,6 +190,28 @@ class MainActivity : AppCompatActivity() {
                 navController.navigate(R.id.mainFragment, bundle)
             }
         }
+    }
+
+    private fun showDeleteChatDialog(chatId: Long) {
+        val builder = AlertDialog.Builder(this)
+        builder.setMessage("Sure you wanna delete this chat?")
+            .setPositiveButton("Delete") { dialog, id ->
+                lifecycleScope.launch {
+                    withContext(Dispatchers.IO) {
+                        db.chatDao().deleteChat(chatId)
+                    }
+                    updateChatList()
+                }
+            }
+            .setNegativeButton("Cancel") { dialog, id ->
+                dialog.dismiss()
+            }
+        val dialog = builder.create()
+        dialog.setOnShowListener {
+            dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(ContextCompat.getColor(this, R.color.black))
+            dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(ContextCompat.getColor(this, R.color.black))
+        }
+        dialog.show()
     }
 
     private suspend fun loadChat(chatId: Long) {

@@ -1,6 +1,6 @@
 package com.example.cpplearner.gemini
 
-import android.util.Log
+import com.example.cpplearner.provider.ModelConfig
 import com.example.cpplearner.provider.ModelProvider
 import com.google.ai.client.generativeai.GenerativeModel
 import com.google.ai.client.generativeai.type.asTextOrNull
@@ -35,24 +35,40 @@ class Gemini(val apiKey: String, val modelName: String) {
         return chatHistory.map { it.parts.first().asTextOrNull() ?: "" }
     }
 
-    suspend fun sendMessageStream(message: String): Flow<String> {
-    val chat = model.startChat(chatHistory)
-    updateChatHistory(message, true)
-    var fullResponse = ""
-    return chat.sendMessageStream(message)
-        .map { response ->
-            val text = response.text ?: ""
-            fullResponse += text
-            text
-        }.onCompletion {
-            updateChatHistory(fullResponse, false)
-        }
-}
+    suspend fun sendMessageStream(message: String): Flow<Pair<String, String>> {
+        val chat = model.startChat(chatHistory)
+        updateChatHistory(message, "",true)
+        var fulltext = ""
+        var thot = ""
+        var text = ""
+        return chat.sendMessageStream(message)
+            .map { response ->
+                thot = response.candidates.first().content.parts.first().asTextOrNull() ?: ""
+                fulltext = response.text ?: ""
+                text = fulltext.replace(thot, "")
+                Pair(text, thot)
+            }.onCompletion {
+                updateChatHistory(text, thot,  false)
+            }
+    }
 
-    fun updateChatHistory(message: String, user: Boolean) {
-        chatHistory.add(content(if (user) "user" else "model") {
-            text(message)
-        })
+    fun updateChatHistory(message: String, thought: String, isUser: Boolean) {
+        if (isUser) {
+            chatHistory.add(content("user") {
+                text(message)
+            })
+        } else {
+            if (message.isBlank()) {
+                chatHistory.add(content("model") {
+                    text(thought) // Message
+                })
+            } else {
+                chatHistory.add(content("model") {
+                    text(message)
+                    text(thought) // Thought
+                })
+            }
+        }
     }
 
     fun initModel(modelName: String): Int {

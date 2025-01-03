@@ -1,5 +1,6 @@
 [versions]
 agp = "8.7.3"
+commonmarkVersion = "0.17.2"
 kotlin = "2.0.21"
 coreKtx = "1.15.0"
 junit = "4.13.2"
@@ -22,6 +23,7 @@ securityCryptoVersion = "1.1.0-alpha03"
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 androidx-security-crypto = { module = "androidx.security:security-crypto", version.ref = "securityCrypto" }
 androidx-security-crypto-v110alpha03 = { module = "androidx.security:security-crypto", version.ref = "securityCryptoVersion" }
+commonmark-commonmark = { module = "org.commonmark:commonmark", version.ref = "commonmarkVersion" }
 ext-strikethrough = { module = "io.noties.markwon:ext-strikethrough", version.ref = "notiesCore" }
 ext-tables = { module = "io.noties.markwon:ext-tables", version.ref = "notiesCore" }
 ext-tasklist = { module = "io.noties.markwon:ext-tasklist" }

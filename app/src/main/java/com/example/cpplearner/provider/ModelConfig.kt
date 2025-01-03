@@ -6,7 +6,8 @@ data class ModelConfig(
     val inputPricing: String,
     val outputPricing: String,
     val rateLimits: String,
-    val knowledgeCutoff: String
+    val knowledgeCutoff: String,
+    val specialFlags: List<String> = emptyList()
 )
 
 object ModelConfigProvider {
@@ -17,7 +18,8 @@ object ModelConfigProvider {
             inputPricing = "≤128K tokens: Input $0.075/1K tokens",
             outputPricing = "≤128K tokens: Output $0.30/1K tokens",
             rateLimits = "2000 RPM (Free)\n15 RPM, 1500 req/day",
-            knowledgeCutoff = "Sep 2024"
+            knowledgeCutoff = "Sep 2024",
+            specialFlags = listOf<String>("Prod-ready")
         ),
         ModelConfig(
             displayName = "Gemini 2.0 Flash Experimental",
@@ -25,7 +27,8 @@ object ModelConfigProvider {
             inputPricing = "Input Free",
             outputPricing = "Output Free",
             rateLimits = "1500 RPM (Free)\n10 RPM, 1000 req/day",
-            knowledgeCutoff = "Sep 2024"
+            knowledgeCutoff = "Sep 2024",
+            specialFlags = listOf<String>("Free", "Experimental")
         ),
         ModelConfig(
             displayName = "Gemini 2.0 Flash Thinking Experimental",
@@ -33,7 +36,8 @@ object ModelConfigProvider {
             inputPricing = "Input Free",
             outputPricing = "Output Free",
             rateLimits = "1500 RPM (Free)\n10 RPM, 1000 req/day",
-            knowledgeCutoff = "Sep 2024"
+            knowledgeCutoff = "Sep 2024",
+            specialFlags = listOf<String>("Thinking", "Free", "Experimental")
         ),
         ModelConfig(
             displayName = "Gemini Experimental 1206",
@@ -41,7 +45,8 @@ object ModelConfigProvider {
             inputPricing = "Input Free",
             outputPricing = "Output Free",
             rateLimits = "1500 RPM (Free)\n10 RPM, 1000 req/day",
-            knowledgeCutoff = "Sep 2024"
+            knowledgeCutoff = "Sep 2024",
+            specialFlags = listOf<String>("Free", "Experimental")
         ),
         ModelConfig(
             displayName = "LearnLM 1.5 Pro Experimental",
@@ -49,7 +54,8 @@ object ModelConfigProvider {
             inputPricing = "Input Free",
             outputPricing = "Output Free",
             rateLimits = "1500 RPM (Free)\n10 RPM, 1000 req/day",
-            knowledgeCutoff = "Sep 2024"
+            knowledgeCutoff = "Sep 2024",
+            specialFlags = listOf<String>("LearnLM", "Free", "Experimental")
         )
     )
 
@@ -59,5 +65,5 @@ object ModelConfigProvider {
         return models.find { it.modelName == modelName }
     }
 
-    fun getDefaultModel(): ModelConfig = models[0]
+    fun getDefaultModel(): ModelConfig = models[1]
 }
