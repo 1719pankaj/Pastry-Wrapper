@@ -67,6 +67,20 @@ class MainFragment : Fragment() {
             true
         }
 
+        binding.buttonPlus.setOnClickListener {
+            binding.buttonPlus.visibility = View.GONE
+            binding.buttonFile.visibility = View.VISIBLE
+            binding.buttonCamera.visibility = View.VISIBLE
+            binding.buttonImage.visibility = View.VISIBLE
+        }
+
+        binding.editTextMessage.setOnClickListener {
+            binding.buttonPlus.visibility = View.VISIBLE
+            binding.buttonFile.visibility = View.GONE
+            binding.buttonCamera.visibility = View.GONE
+            binding.buttonImage.visibility = View.GONE
+        }
+
         return binding.root
     }
 
@@ -92,6 +106,19 @@ class MainFragment : Fragment() {
         super.onResume()
         initializeGemini()
         loadMessages()
+    }
+
+    fun onChatDeleted(chatId: Long) {
+        if (currentChatId == chatId) {
+            currentChatId = 0
+            adapter.updateMessages(emptyList()) { }
+            (activity as? MainActivity)?.let {
+                it.updateNewChatButtonState(false)
+                it.lifecycleScope.launch {
+                    it.createNewChat()
+                }
+            }
+        }
     }
 
     private fun getEncryptedPreferences(): SharedPreferences {

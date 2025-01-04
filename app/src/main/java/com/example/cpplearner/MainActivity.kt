@@ -23,6 +23,7 @@ import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKeys
 import com.example.cpplearner.adapter.ChatListAdapter
 import com.example.cpplearner.databinding.ActivityMainBinding
+import com.example.cpplearner.fragments.MainFragment
 import com.example.cpplearner.gemini.Gemini
 import com.example.cpplearner.roomDB.AppDatabase
 import com.example.cpplearner.roomDB.Chat
@@ -175,7 +176,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private suspend fun createNewChat() {
+    suspend fun createNewChat() {
         withContext(Dispatchers.IO) {
             val chatDao = db.chatDao()
             val newChat = Chat()
@@ -201,6 +202,7 @@ class MainActivity : AppCompatActivity() {
                         db.chatDao().deleteChat(chatId)
                     }
                     updateChatList()
+                    notifyChatDeleted(chatId)
                 }
             }
             .setNegativeButton("Cancel") { dialog, id ->
@@ -212,6 +214,12 @@ class MainActivity : AppCompatActivity() {
             dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(ContextCompat.getColor(this, R.color.black))
         }
         dialog.show()
+    }
+
+    private fun notifyChatDeleted(chatId: Long) {
+        val navHostFragment = supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
+        val mainFragment = navHostFragment.childFragmentManager.fragments.firstOrNull { it is MainFragment } as? MainFragment
+        mainFragment?.onChatDeleted(chatId)
     }
 
     private suspend fun loadChat(chatId: Long) {

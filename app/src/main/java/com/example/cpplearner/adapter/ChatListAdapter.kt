@@ -43,6 +43,7 @@ class ChatListAdapter(
         notifyDataSetChanged()
     }
 
+
     private fun formatTimestamp(timestamp: Long): String {
         // Implement timestamp formatting as needed
         return android.text.format.DateUtils.getRelativeTimeSpanString(

@@ -18,7 +18,7 @@ class Gemini(val apiKey: String, val modelName: String) {
 
     val chatHistory = mutableListOf(
         content("user") {
-            text("Hii, I am trying to make a wrapper for Gemini API and this session is just dev and debug so don't bother wasting too may tokens unless I mention banana its your signal to blast out a massive wall of text. And please don't mind me saying hii a billion times.")
+            text("Hii, I am trying to make a wrapper for Gemini API and this session is just dev and debug so don't bother wasting too many tokens unless I mention banana its your signal to blast out a massive wall of text. And please don't mind me saying hii a billion times.")
         },
         content("model") {
             text("Okay, hii! Sounds good. I understand this is a dev/debug session, so I'll keep my responses concise and not go overboard on tokens unless you say \"banana\". And no worries about the \"hiis,\" I'm here for you. Let's get this Gemini API wrapper rolling!\n\nSo, what are we working on today? What's the first step you're thinking of taking?\n")

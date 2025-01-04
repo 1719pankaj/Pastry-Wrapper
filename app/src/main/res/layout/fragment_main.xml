@@ -24,13 +24,14 @@
     <EditText
         android:id="@+id/editTextMessage"
         android:layout_width="0dp"
-        android:layout_height="0dp"
+        android:layout_height="wrap_content"
         android:paddingHorizontal="16dp"
+        android:paddingVertical="12dp"
         android:background="@drawable/floating_bg"
         android:hint="Type a message"
         android:inputType="textCapSentences|textMultiLine|textAutoCorrect"
         android:maxLines="12"
-        android:layout_marginHorizontal="12dp"
+        android:layout_marginHorizontal="8dp"
         android:scrollbars="vertical"
         android:textColor="@color/almost_black"
         android:textColorHint="@color/grey"
@@ -38,16 +39,88 @@
         tools:text="Placeholder Text"
         app:layout_constraintBottom_toBottomOf="@+id/buttonSend"
         app:layout_constraintEnd_toStartOf="@+id/buttonSend"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/buttonPlus"
         app:layout_constraintTop_toTopOf="@+id/buttonSend"/>
+
+    <ImageButton
+        android:id="@+id/buttonMic"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/round_button"
+        android:backgroundTint="@color/light_grey"
+        android:padding="8dp"
+        android:layout_marginEnd="3dp"
+        android:src="@drawable/ic_mic"
+        app:layout_constraintBottom_toBottomOf="@+id/editTextMessage"
+        app:layout_constraintEnd_toEndOf="@+id/editTextMessage"
+        app:layout_constraintTop_toTopOf="@+id/editTextMessage" />
+
+    <ImageButton
+        android:id="@+id/buttonFile"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/round_button"
+        android:backgroundTint="@color/white"
+        android:padding="4dp"
+        android:layout_marginStart="8dp"
+        android:src="@drawable/ic_file"
+        app:layout_constraintBottom_toBottomOf="@+id/buttonPlus"
+        app:layout_constraintStart_toEndOf="@+id/buttonImage"
+        app:layout_constraintTop_toTopOf="@+id/buttonPlus"
+        android:visibility="gone"/>
+
+    <ImageButton
+        android:id="@+id/buttonImage"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/round_button"
+        android:backgroundTint="@color/white"
+        android:padding="4dp"
+        android:layout_marginStart="8dp"
+        android:src="@drawable/ic_image"
+        app:layout_constraintBottom_toBottomOf="@+id/buttonPlus"
+        app:layout_constraintStart_toEndOf="@+id/buttonCamera"
+        app:layout_constraintTop_toTopOf="@+id/buttonPlus"
+        android:visibility="gone"/>
+
+    <ImageButton
+        android:id="@+id/buttonCamera"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/round_button"
+        android:backgroundTint="@color/white"
+        android:padding="4dp"
+        android:layout_marginStart="8dp"
+        android:src="@drawable/ic_camera"
+        app:layout_constraintBottom_toBottomOf="@+id/buttonPlus"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/buttonPlus"
+        android:visibility="gone"/>
+
+    <ImageButton
+        android:id="@+id/buttonPlus"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/round_button"
+        android:backgroundTint="@color/light_grey"
+        android:padding="8dp"
+        android:layout_marginStart="8dp"
+        android:src="@drawable/ic_plus"
+        app:layout_constraintBottom_toBottomOf="@+id/editTextMessage"
+        app:layout_constraintStart_toEndOf="@+id/buttonFile"
+        app:layout_constraintTop_toTopOf="@+id/editTextMessage" />
+
+
 
 
     <ImageButton
         android:id="@+id/buttonSend"
-        android:layout_width="42dp"
-        android:layout_height="42dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="8dp"
         android:layout_margin="16dp"
         android:background="@drawable/round_button"
+        android:backgroundTint="@color/black"
         android:contentDescription="Send"
         android:scaleType="centerInside"
         android:src="@drawable/ic_send"
