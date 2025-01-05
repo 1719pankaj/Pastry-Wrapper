@@ -1,6 +1,10 @@
 [versions]
 agp = "8.7.3"
 commonmarkVersion = "0.17.2"
+itextpdf = "5.5.13.3"
+javaxXmlApi = "1.4.0"
+json = "20230227"
+jsoup = "1.16.1"
 kotlin = "2.0.21"
 coreKtx = "1.15.0"
 junit = "4.13.2"
@@ -13,11 +17,16 @@ navigationFragmentKtx = "2.8.5"
 navigationUiKtx = "2.8.5"
 generativeai = "0.9.0"
 notiesCore = "4.6.2"
+opencsv = "5.7.1"
+poi = "5.2.3"
+poiOoxml = "5.2.3"
+poiScratchpad = "3.0.1-FINAL"
 prism4j = "2.1.0"
 prism4jBundler = "2.1.0"
 room = "2.6.1"
 securityCrypto = "1.1.0-alpha06"
 securityCryptoVersion = "1.1.0-alpha03"
+exifinterface = "1.3.6"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -31,6 +40,10 @@ html = { module = "io.noties.markwon:html" }
 image = { module = "io.noties.markwon:image" }
 inline-parser = { module = "io.noties.markwon:inline-parser" }
 io-noties-markwon-ext-latex6 = { module = "io.noties.markwon:ext-latex" }
+itextpdf = { module = "com.itextpdf:itextpdf", version.ref = "itextpdf" }
+javax-xml-api = { module = "javax.xml:javax.xml-api", version.ref = "javaxXmlApi" }
+json = { module = "org.json:json", version.ref = "json" }
+jsoup = { module = "org.jsoup:jsoup", version.ref = "jsoup" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
@@ -45,11 +58,16 @@ androidx-room-runtime = { group = "androidx.room", name = "room-runtime", versio
 androidx-room-compiler = { group = "androidx.room", name = "room-compiler", version.ref = "room" }
 androidx-room-ktx = { group = "androidx.room", name = "room-ktx", version.ref = "room" }
 noties-core = { module = "io.noties.markwon:core", version.ref = "notiesCore" }
+opencsv = { module = "com.opencsv:opencsv", version.ref = "opencsv" }
+poi = { module = "org.apache.poi:poi", version.ref = "poi" }
+poi-ooxml = { module = "org.apache.poi:poi-ooxml", version.ref = "poiOoxml" }
+poi-scratchpad = { module = "org.apache.poi:poi-scratchpad", version.ref = "poiScratchpad" }
 prism4j = { module = "io.noties.prism4j:prism4j", version.ref = "prism4j" }
 prism4j-bundler = { module = "io.noties:prism4j-bundler", version.ref = "prism4jBundler" }
 recycler = { module = "io.noties.markwon:recycler" }
 recycler-table = { module = "io.noties.markwon:recycler-table" }
 syntax-highlight = { module = "io.noties.markwon:syntax-highlight", version.ref = "notiesCore" }
+androidx-exifinterface = { group = "androidx.exifinterface", name = "exifinterface", version.ref = "exifinterface" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

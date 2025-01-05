@@ -52,6 +52,7 @@ android {
 dependencies {
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)
+    implementation(libs.androidx.exifinterface)
     ksp(libs.androidx.room.compiler)
 
     implementation("io.noties.markwon:core:4.6.2") {
@@ -69,9 +70,27 @@ dependencies {
     implementation(libs.linkify) {
         exclude(group = "com.atlassian.commonmark", module = "commonmark")
     }
-
-    // Explicitly include the desired commonmark version
     implementation("com.atlassian.commonmark:commonmark:0.13.0")
+
+    // Apache POI for Word document processing
+    implementation("org.apache.poi:poi:5.2.3") {
+        exclude(group = "org.apache.logging.log4j")
+    }
+    implementation("org.apache.poi:poi-ooxml:5.2.3") {
+        exclude(group = "org.apache.logging.log4j")
+    }
+
+    // iTextPDF for PDF processing
+    implementation("com.itextpdf:itextpdf:5.5.13.3")
+
+    // JSON processing
+    implementation("org.json:json:20230227")
+
+    // Jsoup for HTML parsing
+    implementation("org.jsoup:jsoup:1.16.1")
+
+    // OpenCSV for CSV parsing
+    implementation("com.opencsv:opencsv:5.7.1")
 
     implementation(libs.androidx.security.crypto.v110alpha03)
     implementation(libs.androidx.core.ktx)
