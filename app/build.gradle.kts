@@ -14,7 +14,7 @@ android {
 
     defaultConfig {
         applicationId = "com.example.cpplearner"
-        minSdk = 24
+        minSdk = 26
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
@@ -72,25 +72,14 @@ dependencies {
     }
     implementation("com.atlassian.commonmark:commonmark:0.13.0")
 
-    // Apache POI for Word document processing
-    implementation("org.apache.poi:poi:5.2.3") {
-        exclude(group = "org.apache.logging.log4j")
-    }
-    implementation("org.apache.poi:poi-ooxml:5.2.3") {
-        exclude(group = "org.apache.logging.log4j")
-    }
+    // For text extraction
+    implementation("com.tom-roush:pdfbox-android:2.0.27.0")
+    implementation("org.apache.poi:poi:5.2.3")
+    implementation("org.apache.poi:poi-ooxml:5.2.3")
+    implementation("org.apache.commons:commons-compress:1.23.0")
+    implementation("org.apache.commons:commons-collections4:4.4")
 
-    // iTextPDF for PDF processing
-    implementation("com.itextpdf:itextpdf:5.5.13.3")
-
-    // JSON processing
-    implementation("org.json:json:20230227")
-
-    // Jsoup for HTML parsing
-    implementation("org.jsoup:jsoup:1.16.1")
-
-    // OpenCSV for CSV parsing
-    implementation("com.opencsv:opencsv:5.7.1")
+    implementation(libs.glide)
 
     implementation(libs.androidx.security.crypto.v110alpha03)
     implementation(libs.androidx.core.ktx)

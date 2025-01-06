@@ -1,5 +1,6 @@
 package com.example.cpplearner.fragments
 
+import android.content.Context
 import android.content.SharedPreferences
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -11,7 +12,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.inputmethod.ExtractedText
+import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -33,10 +34,15 @@ import com.example.cpplearner.roomDB.AppDatabase
 import com.example.cpplearner.roomDB.Chat
 import com.example.cpplearner.roomDB.Message
 import com.example.cpplearner.roomDB.MessageDao
-import com.example.cpplearner.util.FileTextExtractor
+import com.example.cpplearner.util.SimpleUniversalExtractor
+import com.example.cpplearner.util.SimpleUniversalExtractor.Companion
+import com.example.cpplearner.util.SimpleUniversalExtractor.Companion.BINARY_EXTENSIONS
+import com.example.cpplearner.util.SimpleUniversalExtractor.Companion.IMAGE_EXTENSIONS
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.io.File
+import java.io.FileOutputStream
 
 class MainFragment : Fragment() {
 
@@ -46,6 +52,9 @@ class MainFragment : Fragment() {
     private lateinit var db: AppDatabase
     private lateinit var messageDao: MessageDao
     private var currentChatId: Long = 0
+    private var currentBitmap: Bitmap? = null
+    private var currentFileName: String? = null
+    private var extractedText: String = ""
 
     private val TAG = "MainFragment"
     private var currentMessageId: Long? = null
@@ -53,8 +62,6 @@ class MainFragment : Fragment() {
     private lateinit var pickMediaLauncher: ActivityResultLauncher<PickVisualMediaRequest>
     private lateinit var pickFileLauncher: ActivityResultLauncher<String>
     private lateinit var takePictureLauncher: ActivityResultLauncher<Void?>
-
-    private var extractedText: String = ""
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         binding = FragmentMainBinding.inflate(inflater, container, false)
@@ -93,12 +100,15 @@ class MainFragment : Fragment() {
             openQuickTools(false)
             pickSingleFile()
         }
-        binding.imageViewMessage.setOnLongClickListener{
+        binding.imageViewMessage.setOnLongClickListener {
+            currentBitmap = null
             binding.imageViewMessage.setImageBitmap(null)
             binding.imageViewMessage.visibility = View.GONE
             true
         }
-        binding.textViewMessage.setOnLongClickListener{
+
+        binding.textViewMessage.setOnLongClickListener {
+            currentFileName = null
             extractedText = ""
             binding.textViewMessage.text = ""
             binding.textViewMessage.visibility = View.GONE
@@ -114,7 +124,74 @@ class MainFragment : Fragment() {
         return binding.root
     }
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        lifecycleScope.launch {
+            if (!::db.isInitialized) {
+                db = Room.databaseBuilder(requireContext(), AppDatabase::class.java, "messages-db")
+                    .build()
+            }
 
+            currentChatId = arguments?.getLong("chatId") ?: withContext(Dispatchers.IO) {
+                val chatDao = db.chatDao()
+                val newChat = Chat()
+                chatDao.insertChat(newChat)
+            }
+
+            // Now that we have a valid chatId, load messages
+            loadMessages()
+        }
+
+        takePictureLauncher = registerForActivityResult(ActivityResultContracts.TakePicturePreview()) { bitmap ->
+            if (bitmap != null) {
+                val croppedBitmap = cropToSquare(bitmap)
+                currentBitmap = bitmap  // Store the bitmap
+                binding.imageViewMessage.setImageBitmap(croppedBitmap)
+                binding.imageViewMessage.visibility = View.VISIBLE
+            } else {
+                Log.d("Camera", "No picture taken")
+            }
+        }
+        pickMediaLauncher = registerForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
+            if (uri != null) {
+                Log.d("PhotoPicker", "Selected URI: $uri")
+                readImage(uri)
+            } else {
+                Log.d("PhotoPicker", "No media selected")
+            }
+        }
+        pickFileLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
+            if (uri != null) {
+                Log.d("FilePicker", "Selected URI: $uri")
+                val fileName = getFileName(uri)
+                currentFileName = fileName  // Store the filename
+
+                if(BINARY_EXTENSIONS.any { fileName.endsWith(it) }) {
+                    Log.d("FilePicker", "Binary file selected")
+                    Toast.makeText(requireContext(), "Unsupported binary file format", Toast.LENGTH_SHORT).show()
+                    clearAttachments()
+                    return@registerForActivityResult
+                }
+
+                if(IMAGE_EXTENSIONS.any { fileName.endsWith(it) }) {
+                    Log.d("FilePicker", "Image file selected")
+                    readImage(uri)
+                    return@registerForActivityResult
+                }
+                binding.textViewMessage.text = fileName
+                binding.textViewMessage.visibility = View.VISIBLE
+                extractTextFromFile(uri)
+            } else {
+                Log.d("FilePicker", "No file selected")
+            }
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        initializeGemini()
+        loadMessages()
+    }
 
     private fun openQuickTools(boolean: Boolean) {
         binding.buttonPlus.visibility = if (boolean) View.GONE else View.VISIBLE
@@ -129,6 +206,25 @@ class MainFragment : Fragment() {
 
     private fun pickSingleFile() {
         pickFileLauncher.launch("*/*")
+    }
+
+    private fun clearAttachments(UIOnly: Boolean = false) {
+        lifecycleScope.launch(Dispatchers.Main) {
+            if (UIOnly) {
+                binding.imageViewMessage.setImageBitmap(null)
+                binding.imageViewMessage.visibility = View.GONE
+                binding.textViewMessage.text = ""
+                binding.textViewMessage.visibility = View.GONE
+            } else {
+                currentBitmap = null
+                currentFileName = null
+                extractedText = ""
+                binding.imageViewMessage.setImageBitmap(null)
+                binding.imageViewMessage.visibility = View.GONE
+                binding.textViewMessage.text = ""
+                binding.textViewMessage.visibility = View.GONE
+            }
+        }
     }
 
     private fun getFileName(uri: Uri): String {
@@ -175,70 +271,27 @@ class MainFragment : Fragment() {
         return Bitmap.createBitmap(bitmap, x, y, dimension, dimension)
     }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        lifecycleScope.launch {
-            if (!::db.isInitialized) {
-                db = Room.databaseBuilder(requireContext(), AppDatabase::class.java, "messages-db")
-                    .build()
-            }
-
-            currentChatId = arguments?.getLong("chatId") ?: withContext(Dispatchers.IO) {
-                val chatDao = db.chatDao()
-                val newChat = Chat()
-                chatDao.insertChat(newChat)
-            }
-
-            // Now that we have a valid chatId, load messages
-            loadMessages()
-        }
-
-        takePictureLauncher = registerForActivityResult(ActivityResultContracts.TakePicturePreview()) { bitmap ->
-            if (bitmap != null) {
-                val croppedBitmap = cropToSquare(bitmap)
-                binding.imageViewMessage.setImageBitmap(croppedBitmap)
-                binding.imageViewMessage.visibility = View.VISIBLE
-            } else {
-                Log.d("Camera", "No picture taken")
-            }
-        }
-        pickMediaLauncher = registerForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
-            if (uri != null) {
-                Log.d("PhotoPicker", "Selected URI: $uri")
-                val inputStream = requireContext().contentResolver.openInputStream(uri)
-                val originalBitmap = BitmapFactory.decodeStream(inputStream)
-                val rotationAngle = getRotationAngle(uri)
-                val rotatedBitmap = rotateBitmap(originalBitmap, rotationAngle)
-                val croppedBitmap = cropToSquare(rotatedBitmap)
-                binding.imageViewMessage.setImageBitmap(croppedBitmap)
-                binding.imageViewMessage.visibility = View.VISIBLE
-            } else {
-                Log.d("PhotoPicker", "No media selected")
-            }
-        }
-        pickFileLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
-            if (uri != null) {
-                Log.d("FilePicker", "Selected URI: $uri")
-                val fileName = getFileName(uri)
-                binding.textViewMessage.text = fileName
-                binding.textViewMessage.visibility = View.VISIBLE
-                extractTextFromFile(uri)
-            } else {
-                Log.d("FilePicker", "No file selected")
-            }
-        }
+    private fun readImage(uri: Uri) {
+        val inputStream = requireContext().contentResolver.openInputStream(uri)
+        val originalBitmap = BitmapFactory.decodeStream(inputStream)
+        val rotationAngle = getRotationAngle(uri)
+        val rotatedBitmap = rotateBitmap(originalBitmap, rotationAngle)
+        val croppedBitmap = cropToSquare(rotatedBitmap)
+        currentBitmap = rotatedBitmap
+        binding.imageViewMessage.setImageBitmap(croppedBitmap)
+        binding.imageViewMessage.visibility = View.VISIBLE
     }
 
     private fun extractTextFromFile(uri: Uri) {
-        val fileTextExtractor = FileTextExtractor(requireContext())
-        extractedText = ""
-        extractedText = fileTextExtractor.extractTextFromFile(uri)
-    }
+        binding.fileReadProgress.visibility = View.VISIBLE
+        lifecycleScope.launch(Dispatchers.IO) {
+            val extractor = SimpleUniversalExtractor(requireContext())
+            extractedText = extractor.extractTextFromFile(uri)
+            withContext(Dispatchers.Main) {
+                binding.fileReadProgress.visibility = View.GONE
+            }
+        }
 
-    override fun onResume() {
-        super.onResume()
-        initializeGemini()
-        loadMessages()
     }
 
     fun onChatDeleted(chatId: Long) {
@@ -332,19 +385,49 @@ class MainFragment : Fragment() {
 
     private suspend fun sendMessage() {
         val messageText = binding.editTextMessage.text.toString()
-        if (messageText.isBlank()) return
+        if (messageText.isBlank() && currentBitmap == null && extractedText.isBlank()) return
 
         withContext(Dispatchers.Main) {
+            clearAttachments(true)
             binding.editTextMessage.text.clear()
         }
 
-        val userMessage = Message(
-            text = messageText,
-            thought = null,
-            isUser = true,
-            chatId = currentChatId
-        )
-        messageDao.insert(userMessage)
+        val hasAttachment = currentBitmap != null || extractedText.isNotBlank()
+
+        // Prepare the full message text including file content if present
+        val fullMessageText = buildString {
+            append(messageText)
+            if (hasAttachment) {
+                append("\n_____________________________\n")
+                append("Attachment:\n")
+                append(currentFileName)
+                append("\n")
+                append(extractedText)
+            }
+        }
+        if(currentBitmap != null) {
+            val imagePath = saveImageToInternalStorage(currentBitmap!!)
+            val userMessage = Message(
+                chatId = currentChatId,
+                text = messageText,
+                isUser = true,
+                hasImage = true,
+                hasAttachment = hasAttachment,
+                attachmentFileName = if(hasAttachment) currentFileName else null,
+                imagePath = imagePath
+            )
+            messageDao.insert(userMessage)
+        } else {
+            val userMessage = Message(
+                text = messageText,
+                thought = null,
+                isUser = true,
+                hasAttachment = hasAttachment,
+                attachmentFileName = if(hasAttachment) currentFileName else null,
+                chatId = currentChatId
+            )
+            messageDao.insert(userMessage)
+        }
         updateMessages()
 
         val botMessage = Message(
@@ -360,7 +443,13 @@ class MainFragment : Fragment() {
             var finalText = ""
             var finalThought = ""
 
-            gemini.sendMessageStream(messageText).collect { (text, thought) ->
+            val messageStream = if (currentBitmap != null) {
+                gemini.sendMessageWithImageStream(fullMessageText, currentBitmap!!)
+            } else {
+                gemini.sendMessageStream(fullMessageText)
+            }
+
+            messageStream.collect { (text, thought) ->
                 finalText += text
                 finalThought += thought
 
@@ -381,7 +470,37 @@ class MainFragment : Fragment() {
             }
         } catch (e: Exception) {
             Log.e(TAG, "Error in streaming", e)
+        } finally {
+            clearAttachments()
         }
+    }
+
+    private fun saveImageToInternalStorage(bitmap: Bitmap, filename: String? = null): String {
+        // Generate unique filename with timestamp if not provided
+        val timeStamp = System.currentTimeMillis()
+        val imageFileName = filename ?: "IMG_${timeStamp}.jpg"
+
+        // Get app's private directory
+        val imagesDir = requireContext().getDir("images", Context.MODE_PRIVATE)
+        if (!imagesDir.exists()) {
+            imagesDir.mkdir()
+        }
+
+        // Create file
+        val imageFile = File(imagesDir, imageFileName)
+
+        try {
+            // Save bitmap to file
+            FileOutputStream(imageFile).use { fos ->
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 90, fos)
+                fos.flush()
+            }
+        } catch (e: Exception) {
+            Log.e("MainFragment", "Error saving image", e)
+            return ""
+        }
+
+        return imageFile.absolutePath
     }
 
     private fun updateMessages() {

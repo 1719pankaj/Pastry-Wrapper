@@ -18,6 +18,7 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import com.example.cpplearner.R
 import com.example.cpplearner.databinding.ItemMessageBinding
 import com.example.cpplearner.gemini.Gemini
@@ -76,6 +77,27 @@ class MainFragmentRecyclerAdapter(private var messages: List<Message>,
                 binding.textViewThought.visibility = View.GONE
             }
 
+            // Handle image display
+            if (message.hasImage && !message.imagePath.isNullOrEmpty()) {
+                binding.imageViewMessageItem.visibility = View.VISIBLE
+
+                // Load and display image
+                Glide.with(binding.root.context)
+                    .load(message.imagePath)
+                    .centerCrop()
+                    .into(binding.imageViewMessageItem)
+            } else {
+                binding.imageViewMessageItem.visibility = View.GONE
+            }
+
+            //Handle Attachment display
+            if (message.hasAttachment && !message.attachmentFileName.isNullOrEmpty()) {
+                binding.textViewAttachment.visibility = View.VISIBLE
+                binding.textViewAttachment.text = message.attachmentFileName
+            } else {
+                binding.textViewAttachment.visibility = View.GONE
+            }
+
             // Apply markdown formatting - keep text rendering simple for streaming messages
             binding.textViewMessage.text = message.text
             if (!message.isUser) {
@@ -89,27 +111,29 @@ class MainFragmentRecyclerAdapter(private var messages: List<Message>,
 
             if (message.isUser) {
                 constraintSet.connect(
-                    binding.textViewMessage.id,
+                    binding.itemMessageContainer.id,
                     ConstraintSet.END,
                     ConstraintSet.PARENT_ID,
                     ConstraintSet.END
                 )
-                constraintSet.clear(binding.textViewMessage.id, ConstraintSet.START)
-                binding.textViewMessage.setBackgroundResource(R.drawable.item_message_bg)
+                constraintSet.clear(binding.itemMessageContainer.id, ConstraintSet.START)
+                binding.itemMessageContainer.setBackgroundColor(ContextCompat.getColor(binding.root.context, R.color.dark_white))
+                binding.textViewMessage.setBackgroundColor(ContextCompat.getColor(binding.root.context, R.color.dark_white))
+
 
                 // Hide thought for user messages
                 binding.textViewThought.visibility = View.GONE
             } else {
                 constraintSet.connect(
-                    binding.textViewMessage.id,
+                    binding.itemMessageContainer.id,
                     ConstraintSet.START,
                     ConstraintSet.PARENT_ID,
                     ConstraintSet.START
                 )
                 constraintSet.clear(binding.textViewMessage.id, ConstraintSet.END)
-                binding.textViewMessage.setBackgroundColor(
-                    ContextCompat.getColor(binding.root.context, R.color.receivedMessageBackground)
-                )
+                binding.itemMessageContainer.setBackgroundResource(R.drawable.floating_bg)
+                binding.itemMessageContainer.setBackgroundColor(ContextCompat.getColor(binding.root.context, R.color.white))
+                binding.textViewMessage.setBackgroundColor(ContextCompat.getColor(binding.root.context, R.color.white))
             }
 
             constraintSet.applyTo(binding.root as ConstraintLayout)

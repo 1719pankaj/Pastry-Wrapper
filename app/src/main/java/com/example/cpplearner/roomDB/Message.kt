@@ -22,6 +22,11 @@ data class Message(
     val text: String,
     val thought: String? = null,  // New field for thought content
     val isUser: Boolean,
+    val hasImage: Boolean = false,
+    val imagePath: String? = null, // Store local file path
+    val imageType: String? = null,  // Store mime type
+    val hasAttachment: Boolean = false,
+    val attachmentFileName: String? = null,  // Store local file path
     val modelName: String? = null,
     val timestamp: Long = System.currentTimeMillis()
 )

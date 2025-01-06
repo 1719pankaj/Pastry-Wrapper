@@ -1,11 +1,14 @@
 package com.example.cpplearner.gemini
 
+import android.graphics.Bitmap
+import android.util.Log
 import com.example.cpplearner.provider.ModelConfig
 import com.example.cpplearner.provider.ModelProvider
 import com.google.ai.client.generativeai.GenerativeModel
 import com.google.ai.client.generativeai.type.asTextOrNull
 import com.google.ai.client.generativeai.type.content
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onCompletion
 
@@ -50,6 +53,38 @@ class Gemini(val apiKey: String, val modelName: String) {
             }.onCompletion {
                 updateChatHistory(text, thot,  false)
             }
+    }
+
+    suspend fun sendMessageWithImageStream(message: String, bitmap: Bitmap): Flow<Pair<String, String>> {
+        val chat = model.startChat()
+        updateChatHistory(message, "", true)
+
+        return flow {
+            try {
+                val response = model.generateContentStream(
+                    content {
+                        image(bitmap)
+                        text(message)
+                    }
+                )
+
+                var fulltext = ""
+                var thot = ""
+                var text = ""
+
+                response.collect { chunk ->
+                    thot = chunk.candidates.first().content.parts.first().asTextOrNull() ?: ""
+                    fulltext = chunk.text ?: ""
+                    text = fulltext.replace(thot, "")
+                    emit(Pair(text, thot))
+                }
+
+                updateChatHistory(text, thot, false)
+            } catch (e: Exception) {
+                Log.e("Gemini", "Error generating image response", e)
+                emit(Pair("Error analyzing image", e.localizedMessage ?: "Unknown error"))
+            }
+        }
     }
 
     fun updateChatHistory(message: String, thought: String, isUser: Boolean) {

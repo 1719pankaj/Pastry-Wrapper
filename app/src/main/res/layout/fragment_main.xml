@@ -62,6 +62,20 @@
             tools:text="important_file.pdf"
             tools:visibility="visible" />
 
+        <ProgressBar
+            android:id="@+id/fileReadProgress"
+            android:layout_width="40dp"
+            android:layout_height="0dp"
+            android:background="@drawable/round_button"
+            android:backgroundTint="@color/dark_white"
+            android:padding="8dp"
+            android:src="@drawable/ic_mic"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="@+id/textViewMessage"
+            app:layout_constraintEnd_toEndOf="@+id/textViewMessage"
+            app:layout_constraintTop_toTopOf="@+id/textViewMessage"
+            tools:visibility="visible" />
+
         <EditText
             android:id="@+id/editTextMessage"
             android:layout_width="0dp"
@@ -144,10 +158,10 @@
         android:id="@+id/buttonPlus"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
         android:background="@drawable/round_button"
         android:backgroundTint="@color/light_grey"
         android:padding="8dp"
-        android:layout_marginStart="8dp"
         android:src="@drawable/ic_plus"
         app:layout_constraintBottom_toBottomOf="@+id/layoutMessageInput"
         app:layout_constraintStart_toEndOf="@+id/buttonFile"

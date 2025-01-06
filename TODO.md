@@ -17,8 +17,7 @@
   - Half baked.
 - [ ] Add handling logic for thinking models.
   - Buggy as fuck :)
-- [ ] Multi-modal inputs for chat.
-  - UI Done.
+- [x] Multi-modal inputs for chat.
 - [ ] Figure out how to not send entire chat history.
 
 ## Minor
