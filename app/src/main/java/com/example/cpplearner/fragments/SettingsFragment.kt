@@ -18,6 +18,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.coroutineScope
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.room.Room
@@ -31,6 +32,7 @@ import com.example.cpplearner.gemini.Gemini
 import com.example.cpplearner.provider.ModelConfig
 import com.example.cpplearner.provider.ModelConfigProvider
 import com.google.ai.client.generativeai.type.InvalidAPIKeyException
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlin.coroutines.resume
@@ -171,6 +173,10 @@ class SettingsFragment : Fragment() {
             if (isValid) {
                 sharedPreferences.edit().putString("GEMINI_API_KEY", apiKey).apply()
                 binding.radioGroup.visibility = View.VISIBLE
+                lifecycleScope.launch {
+                    delay(1300) // Wait for 1300 milliseconds
+                    findNavController().navigate(R.id.action_settingsFragment_to_mainFragment)
+                }
             }
         }
 
