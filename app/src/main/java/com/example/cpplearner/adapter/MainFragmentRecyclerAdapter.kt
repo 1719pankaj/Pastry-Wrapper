@@ -42,6 +42,7 @@ class MainFragmentRecyclerAdapter(private var messages: List<Message>,
     private var touchX: Float = 0f
     private var touchY: Float = 0f
 
+    @SuppressLint("ClickableViewAccessibility")
     inner class MessageViewHolder(private val binding: ItemMessageBinding) : RecyclerView.ViewHolder(binding.root) {
 
         init {
@@ -111,28 +112,25 @@ class MainFragmentRecyclerAdapter(private var messages: List<Message>,
 
             if (message.isUser) {
                 constraintSet.connect(
-                    binding.itemMessageContainer.id,
+                    binding.textViewMessage.id,
                     ConstraintSet.END,
                     ConstraintSet.PARENT_ID,
                     ConstraintSet.END
                 )
-                constraintSet.clear(binding.itemMessageContainer.id, ConstraintSet.START)
-                binding.itemMessageContainer.setBackgroundColor(ContextCompat.getColor(binding.root.context, R.color.dark_white))
-                binding.textViewMessage.setBackgroundColor(ContextCompat.getColor(binding.root.context, R.color.dark_white))
+                constraintSet.clear(binding.textViewMessage.id, ConstraintSet.START)
+                binding.textViewMessage.background = ContextCompat.getDrawable(binding.root.context, R.drawable.floating_bg)
 
 
                 // Hide thought for user messages
                 binding.textViewThought.visibility = View.GONE
             } else {
                 constraintSet.connect(
-                    binding.itemMessageContainer.id,
+                    binding.textViewMessage.id,
                     ConstraintSet.START,
                     ConstraintSet.PARENT_ID,
                     ConstraintSet.START
                 )
                 constraintSet.clear(binding.textViewMessage.id, ConstraintSet.END)
-                binding.itemMessageContainer.setBackgroundResource(R.drawable.floating_bg)
-                binding.itemMessageContainer.setBackgroundColor(ContextCompat.getColor(binding.root.context, R.color.white))
                 binding.textViewMessage.setBackgroundColor(ContextCompat.getColor(binding.root.context, R.color.white))
             }
 

@@ -22,4 +22,5 @@
     <color name="success_green">#e3f7e7</color>
     <color name="failure_red">#3DD30812</color>
     <color name="disabled_grey">#c4c4c4</color>
+    <color name="active_green">#54ba64</color>
 </resources>

@@ -9,7 +9,7 @@ import com.example.cpplearner.R
 import com.example.cpplearner.roomDB.Chat
 
 class ChatListAdapter(
-    private var chats: List<Chat>,
+    var chats: List<Chat>,
     private val onChatSelected: (Long) -> Unit,
     private val onChatLongPressed: (Long) -> Unit
 ) : RecyclerView.Adapter<ChatListAdapter.ChatViewHolder>() {

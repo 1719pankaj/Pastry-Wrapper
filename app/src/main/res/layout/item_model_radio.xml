@@ -2,108 +2,30 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:background="@drawable/floating_bg"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:padding="16dp">
+    android:layout_height="wrap_content">
 
     <RadioButton
         android:id="@+id/geminiRadioButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginStart="6dp"
         android:textStyle="bold"
-        tools:text="Gemini 1.5 Pro"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        tools:text="Gemini 1.5 Pro" />
 
-    <TextView
-        android:id="@+id/geminiNameTextView"
+    <ImageButton
+        android:id="@+id/modelInfoButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textColor="@android:color/darker_gray"
-        android:layout_marginTop="1dp"
-        tools:text="gemini-1.5-pro"
-        app:layout_constraintTop_toBottomOf="@id/geminiRadioButton"
-        app:layout_constraintStart_toStartOf="parent" />
-
-    <TextView
-        android:id="@+id/geminiPricingTextView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:textStyle="bold"
-        android:textColor="@color/dark_grey"
-        android:text="Input/Output Pricing:"
-        app:layout_constraintTop_toBottomOf="@id/geminiNameTextView"
-        app:layout_constraintStart_toStartOf="parent" />
-
-    <TextView
-        android:id="@+id/geminiPricingDetailsTextView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="4dp"
-        android:textColor="@android:color/darker_gray"
-        tools:text="≤128K tokens: Input $0.075, Output $0.30\n> 128K tokens: Input $0.075, Output $0.60"
-        app:layout_constraintTop_toBottomOf="@id/geminiPricingTextView"
-        app:layout_constraintStart_toStartOf="parent" />
-
-    <TextView
-        android:id="@+id/geminiRateLimitsTextView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:textStyle="bold"
-        android:text="Rate limits:"
-        app:layout_constraintTop_toBottomOf="@id/geminiPricingDetailsTextView"
-        app:layout_constraintStart_toStartOf="parent" />
-
-    <TextView
-        android:id="@+id/geminiRateLimitsDetailsTextView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="4dp"
-        android:textColor="@color/dark_grey"
-        tools:text="2000 RPM (Free)\n15 RPM, 1500 req/day"
-        app:layout_constraintTop_toBottomOf="@id/geminiRateLimitsTextView"
-        app:layout_constraintStart_toStartOf="parent" />
-
-    <TextView
-        android:id="@+id/geminiKnowledgeCutoffTextView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:textStyle="bold"
-        android:text="Knowledge cutoff:"
-        app:layout_constraintTop_toBottomOf="@id/geminiRateLimitsDetailsTextView"
-        app:layout_constraintStart_toStartOf="parent" />
-
-    <TextView
-        android:id="@+id/geminiKnowledgeCutoffDetailsTextView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="4dp"
-        android:textColor="@android:color/darker_gray"
-        tools:text="Sep 2024"
-        app:layout_constraintTop_toBottomOf="@id/geminiKnowledgeCutoffTextView"
-        app:layout_constraintStart_toStartOf="parent" />
-
-    <TextView
-        android:id="@+id/geminiSpecialFlagsTextView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:textStyle="bold"
-        android:text="Special Flags:"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/geminiKnowledgeCutoffDetailsTextView"/>
-
-    <TextView
-        android:id="@+id/geminiSpecialFlagsDetailsTextView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="4dp"
-        android:textColor="@android:color/darker_gray"
-        tools:text="Experimental, Thinking, Free"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/geminiSpecialFlagsTextView"/>
+        android:layout_marginEnd="6dp"
+        android:background="@drawable/floating_bg"
+        android:padding="6dp"
+        android:src="@drawable/ic_info"
+        app:layout_constraintBottom_toBottomOf="@+id/geminiRadioButton"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/geminiRadioButton" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

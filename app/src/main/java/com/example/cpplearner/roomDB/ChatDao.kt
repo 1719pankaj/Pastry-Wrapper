@@ -10,6 +10,9 @@ interface ChatDao {
     @Query("SELECT * FROM chats ORDER BY timestamp DESC")
     suspend fun getAllChats(): List<Chat>
 
+    @Query("SELECT * FROM chats ORDER BY timestamp DESC")
+    fun getAllChatsNonAsync(): List<Chat>
+
     @Transaction
     @Query("SELECT * FROM chats WHERE chatId = :chatId")
     suspend fun getChatWithMessages(chatId: Long): ChatWithMessages?

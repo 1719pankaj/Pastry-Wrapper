@@ -41,7 +41,7 @@
             android:visibility="gone"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            tools:src="@drawable/ic_400x600"
+            tools:src="@drawable/ic_image"
             tools:visibility="visible" />
 
         <TextView

@@ -1,13 +1,20 @@
 package com.example.cpplearner.fragments
 
+import android.Manifest
 import android.content.Context
+import android.content.Intent
 import android.content.SharedPreferences
+import android.content.pm.PackageManager
+import android.content.res.ColorStateList
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Matrix
 import android.net.Uri
 import android.os.Bundle
 import android.provider.OpenableColumns
+import android.speech.RecognitionListener
+import android.speech.RecognizerIntent
+import android.speech.SpeechRecognizer
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -16,6 +23,7 @@ import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.content.ContextCompat
 import androidx.exifinterface.media.ExifInterface
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
@@ -35,9 +43,9 @@ import com.example.cpplearner.roomDB.Chat
 import com.example.cpplearner.roomDB.Message
 import com.example.cpplearner.roomDB.MessageDao
 import com.example.cpplearner.util.SimpleUniversalExtractor
-import com.example.cpplearner.util.SimpleUniversalExtractor.Companion
 import com.example.cpplearner.util.SimpleUniversalExtractor.Companion.BINARY_EXTENSIONS
 import com.example.cpplearner.util.SimpleUniversalExtractor.Companion.IMAGE_EXTENSIONS
+import com.example.cpplearner.util.SpeechRecognizerManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -63,7 +71,14 @@ class MainFragment : Fragment() {
     private lateinit var pickFileLauncher: ActivityResultLauncher<String>
     private lateinit var takePictureLauncher: ActivityResultLauncher<Void?>
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+    private lateinit var speechRecognizerManager: SpeechRecognizerManager
+    private lateinit var recordAudioPermissionLauncher: ActivityResultLauncher<String>
+
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
         binding = FragmentMainBinding.inflate(inflater, container, false)
         db = Room.databaseBuilder(requireContext(), AppDatabase::class.java, "messages-db").build()
         messageDao = db.messageDao()
@@ -78,6 +93,23 @@ class MainFragment : Fragment() {
         )
 
         setupRecyclerView()
+
+        speechRecognizerManager = SpeechRecognizerManager(this)
+        speechRecognizerManager.setOnTextUpdateListener { text ->
+            binding.editTextMessage.setText(text)
+            binding.editTextMessage.setSelection(text.length)
+        }
+        speechRecognizerManager.setOnListeningStateChangeListener { isListening ->
+            updateMicButtonState(isListening)
+        }
+
+        binding.buttonMic.setOnClickListener {
+            when {
+                speechRecognizerManager.isListening() -> speechRecognizerManager.stopListening()
+                checkAudioPermission() -> speechRecognizerManager.startListening()
+                else -> recordAudioPermissionLauncher.launch(Manifest.permission.RECORD_AUDIO)
+            }
+        }
 
         binding.buttonSend.setOnClickListener {
             lifecycleScope.launch(Dispatchers.IO) {
@@ -142,38 +174,44 @@ class MainFragment : Fragment() {
             loadMessages()
         }
 
-        takePictureLauncher = registerForActivityResult(ActivityResultContracts.TakePicturePreview()) { bitmap ->
-            if (bitmap != null) {
-                val croppedBitmap = cropToSquare(bitmap)
-                currentBitmap = bitmap  // Store the bitmap
-                binding.imageViewMessage.setImageBitmap(croppedBitmap)
-                binding.imageViewMessage.visibility = View.VISIBLE
-            } else {
-                Log.d("Camera", "No picture taken")
+        takePictureLauncher =
+            registerForActivityResult(ActivityResultContracts.TakePicturePreview()) { bitmap ->
+                if (bitmap != null) {
+                    val croppedBitmap = cropToSquare(bitmap)
+                    currentBitmap = bitmap  // Store the bitmap
+                    binding.imageViewMessage.setImageBitmap(croppedBitmap)
+                    binding.imageViewMessage.visibility = View.VISIBLE
+                } else {
+                    Log.d("Camera", "No picture taken")
+                }
             }
-        }
-        pickMediaLauncher = registerForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
-            if (uri != null) {
-                Log.d("PhotoPicker", "Selected URI: $uri")
-                readImage(uri)
-            } else {
-                Log.d("PhotoPicker", "No media selected")
+        pickMediaLauncher =
+            registerForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
+                if (uri != null) {
+                    Log.d("PhotoPicker", "Selected URI: $uri")
+                    readImage(uri)
+                } else {
+                    Log.d("PhotoPicker", "No media selected")
+                }
             }
-        }
         pickFileLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
             if (uri != null) {
                 Log.d("FilePicker", "Selected URI: $uri")
                 val fileName = getFileName(uri)
                 currentFileName = fileName  // Store the filename
 
-                if(BINARY_EXTENSIONS.any { fileName.endsWith(it) }) {
+                if (BINARY_EXTENSIONS.any { fileName.endsWith(it) }) {
                     Log.d("FilePicker", "Binary file selected")
-                    Toast.makeText(requireContext(), "Unsupported binary file format", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(
+                        requireContext(),
+                        "Unsupported binary file format",
+                        Toast.LENGTH_SHORT
+                    ).show()
                     clearAttachments()
                     return@registerForActivityResult
                 }
 
-                if(IMAGE_EXTENSIONS.any { fileName.endsWith(it) }) {
+                if (IMAGE_EXTENSIONS.any { fileName.endsWith(it) }) {
                     Log.d("FilePicker", "Image file selected")
                     readImage(uri)
                     return@registerForActivityResult
@@ -191,6 +229,11 @@ class MainFragment : Fragment() {
         super.onResume()
         initializeGemini()
         loadMessages()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        speechRecognizerManager.destroy()
     }
 
     private fun openQuickTools(boolean: Boolean) {
@@ -251,7 +294,10 @@ class MainFragment : Fragment() {
     private fun getRotationAngle(uri: Uri): Int {
         val inputStream = requireContext().contentResolver.openInputStream(uri)
         val exif = ExifInterface(inputStream!!)
-        return when (exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL)) {
+        return when (exif.getAttributeInt(
+            ExifInterface.TAG_ORIENTATION,
+            ExifInterface.ORIENTATION_NORMAL
+        )) {
             ExifInterface.ORIENTATION_ROTATE_90 -> 90
             ExifInterface.ORIENTATION_ROTATE_180 -> 180
             ExifInterface.ORIENTATION_ROTATE_270 -> 270
@@ -405,7 +451,7 @@ class MainFragment : Fragment() {
                 append(extractedText)
             }
         }
-        if(currentBitmap != null) {
+        if (currentBitmap != null) {
             val imagePath = saveImageToInternalStorage(currentBitmap!!)
             val userMessage = Message(
                 chatId = currentChatId,
@@ -413,7 +459,7 @@ class MainFragment : Fragment() {
                 isUser = true,
                 hasImage = true,
                 hasAttachment = hasAttachment,
-                attachmentFileName = if(hasAttachment) currentFileName else null,
+                attachmentFileName = if (hasAttachment) currentFileName else null,
                 imagePath = imagePath
             )
             messageDao.insert(userMessage)
@@ -423,7 +469,7 @@ class MainFragment : Fragment() {
                 thought = null,
                 isUser = true,
                 hasAttachment = hasAttachment,
-                attachmentFileName = if(hasAttachment) currentFileName else null,
+                attachmentFileName = if (hasAttachment) currentFileName else null,
                 chatId = currentChatId
             )
             messageDao.insert(userMessage)
@@ -544,4 +590,22 @@ class MainFragment : Fragment() {
         }
     }
 
+    private fun checkAudioPermission(): Boolean {
+        return ContextCompat.checkSelfPermission(
+            requireContext(),
+            Manifest.permission.RECORD_AUDIO
+        ) == PackageManager.PERMISSION_GRANTED
+    }
+
+    private fun updateMicButtonState(isListening: Boolean) {
+        binding.buttonMic.setImageResource(
+            if (isListening) R.drawable.ic_mic_filled else R.drawable.ic_mic
+        )
+        binding.buttonMic.backgroundTintList = ColorStateList.valueOf(
+            ContextCompat.getColor(
+                requireContext(),
+                if (isListening) R.color.active_green else R.color.light_grey
+            )
+        )
+    }
 }

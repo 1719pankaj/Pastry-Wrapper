@@ -2,10 +2,15 @@ package com.example.cpplearner
 
 import android.os.Build
 import android.os.Bundle
+import android.speech.SpeechRecognizer
+import android.text.Editable
+import android.text.TextWatcher
 import android.util.Log
 import android.view.View
 import android.view.WindowInsetsController
 import android.widget.ImageView
+import android.widget.EditText
+import androidx.activity.result.ActivityResultLauncher
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
@@ -39,6 +44,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var chatListAdapter: ChatListAdapter
     private lateinit var db: AppDatabase
     lateinit var gemini: Gemini
+
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -78,6 +84,25 @@ class MainActivity : AppCompatActivity() {
 
         setupChatList()
         setupNewChatButton()
+        setupSearchBox()
+
+        navigationView.setNavigationItemSelectedListener { menuItem ->
+            val navController = findNavController(R.id.nav_host_fragment)
+            when (menuItem.itemId) {
+                R.id.nav_settings -> {
+                    // Check if the current destination is not settingsFragment
+                    if (navController.currentDestination?.id != R.id.settingsFragment) {
+                        navController.navigate(R.id.action_mainFragment_to_settingsFragment)
+                    }
+                    drawerLayout.closeDrawer(GravityCompat.START)
+                    true
+                }
+                else -> {
+                    drawerLayout.closeDrawer(GravityCompat.START)
+                    false
+                }
+            }
+        }
 
         // Check if the encrypted API key exists
         val masterKeyAlias = MasterKeys.getOrCreate(MasterKeys.AES256_GCM_SPEC)
@@ -126,13 +151,25 @@ class MainActivity : AppCompatActivity() {
                             navController.navigate(R.id.action_mainFragment_to_settingsFragment)
                         }
                     }
+                    drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED)
+                    findViewById<ImageView>(R.id.pastry).setOnClickListener {
+                        drawerLayout.openDrawer(GravityCompat.START)
+                    }
                 }
                 R.id.settingsFragment -> {
                     // Set up action bar for settingsFragment
                     supportActionBar?.customView?.findViewById<ImageView>(R.id.newChat)?.visibility = View.INVISIBLE
                     supportActionBar?.customView?.findViewById<ImageView>(R.id.menu)?.visibility = View.INVISIBLE
+                    drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
+                    findViewById<ImageView>(R.id.pastry).setOnClickListener(null)
                 }
                 // Add more cases for other fragments as needed
+                else -> {
+                    drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED)
+                    findViewById<ImageView>(R.id.pastry).setOnClickListener {
+                        drawerLayout.openDrawer(GravityCompat.START)
+                    }
+                }
             }
         }
     }
@@ -189,6 +226,51 @@ class MainActivity : AppCompatActivity() {
                     putLong("chatId", chatId)
                 }
                 navController.navigate(R.id.mainFragment, bundle)
+            }
+        }
+    }
+
+    private fun setupSearchBox() {
+        val navigationView: NavigationView = findViewById(R.id.navigation_view)
+        val headerView = navigationView.getHeaderView(0)
+        val searchBox: EditText = headerView.findViewById(R.id.search_box)
+
+        searchBox.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                // Launch in a coroutine to handle database operations
+                lifecycleScope.launch {
+                    filterChats(s?.toString() ?: "")
+                }
+            }
+
+            override fun afterTextChanged(s: Editable?) {}
+        })
+    }
+
+    private suspend fun filterChats(query: String) {
+        withContext(Dispatchers.IO) {
+            // Always fetch the full list first
+            val allChats = if (!::db.isInitialized) {
+                db = Room.databaseBuilder(applicationContext, AppDatabase::class.java, "messages-db").build()
+                db.chatDao().getChatsWithMessages()
+            } else {
+                db.chatDao().getChatsWithMessages()
+            }
+
+            // Then filter based on query
+            val filteredChats = if (query.isEmpty()) {
+                allChats
+            } else {
+                allChats.filter { chat ->
+                    chat.summary?.contains(query, ignoreCase = true) == true
+                }
+            }
+
+            // Update UI on main thread
+            withContext(Dispatchers.Main) {
+                chatListAdapter.updateChats(filteredChats)
             }
         }
     }
@@ -269,7 +351,6 @@ class MainActivity : AppCompatActivity() {
             }
         }
     }
-
 
     /**
      * A native method that is implemented by the 'cpplearner' native library,

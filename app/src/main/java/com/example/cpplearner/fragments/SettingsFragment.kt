@@ -1,12 +1,18 @@
 package com.example.cpplearner.fragments
 
+import android.app.Dialog
+import android.content.Intent
 import android.content.SharedPreferences
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
+import android.net.Uri
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageButton
 import android.widget.RadioButton
 import android.widget.TextView
 import android.widget.Toast
@@ -18,9 +24,11 @@ import androidx.room.Room
 import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKeys
 import com.example.cpplearner.R
+import com.example.cpplearner.databinding.DialogModelInfoBinding
 import com.example.cpplearner.databinding.FragmentSettingsBinding
 import com.example.cpplearner.roomDB.AppDatabase
 import com.example.cpplearner.gemini.Gemini
+import com.example.cpplearner.provider.ModelConfig
 import com.example.cpplearner.provider.ModelConfigProvider
 import com.google.ai.client.generativeai.type.InvalidAPIKeyException
 import kotlinx.coroutines.launch
@@ -49,6 +57,13 @@ class SettingsFragment : Fragment() {
             EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
         )
 
+        val apiKey = sharedPreferences.getString("GEMINI_API_KEY", null)
+        if (apiKey.isNullOrEmpty()) {
+            binding.radioGroup.visibility = View.GONE
+        } else {
+            binding.radioGroup.visibility = View.VISIBLE
+        }
+
         binding.editTextMessage.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
 
@@ -64,9 +79,20 @@ class SettingsFragment : Fragment() {
             saveApiKey(apiKey)
         }
 
+        binding.geminiWebButton.setOnClickListener {
+            openAiStudio()
+        }
+
         addRadioButtons(18)
 
         return binding.root
+    }
+
+    fun openAiStudio() {
+        val url = "https://aistudio.google.com/apikey"
+        val i = Intent(Intent.ACTION_VIEW)
+        i.data = Uri.parse(url)
+        startActivity(i)
     }
 
     private fun addRadioButtons(number: Int) {
@@ -79,11 +105,7 @@ class SettingsFragment : Fragment() {
         ModelConfigProvider.getModels().forEach { modelConfig ->
             val radioButtonLayout = layoutInflater.inflate(R.layout.item_model_radio, radioGroup, false)
             val geminiRadioButton = radioButtonLayout.findViewById<RadioButton>(R.id.geminiRadioButton)
-            val geminiNameTextView = radioButtonLayout.findViewById<TextView>(R.id.geminiNameTextView)
-            val geminiPricingDetailsTextView = radioButtonLayout.findViewById<TextView>(R.id.geminiPricingDetailsTextView)
-            val geminiRateLimitsDetailsTextView = radioButtonLayout.findViewById<TextView>(R.id.geminiRateLimitsDetailsTextView)
-            val geminiKnowledgeCutoffDetailsTextView = radioButtonLayout.findViewById<TextView>(R.id.geminiKnowledgeCutoffDetailsTextView)
-            val geminiSpecialFlagsDetailsTextView = radioButtonLayout.findViewById<TextView>(R.id.geminiSpecialFlagsDetailsTextView)
+            val modelInfoButton = radioButtonLayout.findViewById<ImageButton>(R.id.modelInfoButton)
 
             // Remove the RadioButton from its parent
             (geminiRadioButton.parent as? ViewGroup)?.removeView(geminiRadioButton)
@@ -98,12 +120,9 @@ class SettingsFragment : Fragment() {
             geminiRadioButton.text = modelConfig.displayName
             geminiRadioButton.isChecked = modelConfig.modelName == currentModel
 
-            geminiNameTextView.text = modelConfig.modelName
-            geminiPricingDetailsTextView.text = "${modelConfig.inputPricing}\n${modelConfig.outputPricing}"
-            geminiRateLimitsDetailsTextView.text = modelConfig.rateLimits
-            geminiKnowledgeCutoffDetailsTextView.text = modelConfig.knowledgeCutoff
-            geminiSpecialFlagsDetailsTextView.text = modelConfig.specialFlags.joinToString(", ")
-
+            modelInfoButton.setOnClickListener {
+                showModelInfoDialog(modelConfig)
+            }
 
             geminiRadioButton.setOnCheckedChangeListener { buttonView, isChecked ->
                 if (isChecked) {
@@ -115,13 +134,43 @@ class SettingsFragment : Fragment() {
         }
     }
 
+    private fun showModelInfoDialog(modelConfig: ModelConfig) {
+        val dialog = Dialog(requireContext())
+        val dialogBinding = DialogModelInfoBinding.inflate(layoutInflater)
+        dialog.setContentView(dialogBinding.root)
+
+        // Set dialog window to match parent width with margins
+        dialog.window?.apply {
+            setLayout(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+            )
+            setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+        }
+
+        with(dialogBinding) {
+            modelNameTitle.text = modelConfig.displayName
+            modelNameSubtitle.text = modelConfig.modelName
+            pricingDetailsText.text = "${modelConfig.inputPricing}\n${modelConfig.outputPricing}"
+            rateLimitsText.text = modelConfig.rateLimits
+            knowledgeCutoffText.text = modelConfig.knowledgeCutoff
+            specialFlagsText.text = modelConfig.specialFlags.joinToString(", ")
+
+            closeButton.setOnClickListener {
+                dialog.dismiss()
+            }
+        }
+
+        dialog.show()
+    }
+
+
     private fun saveApiKey(apiKey: String) {
         lifecycleScope.launch {
             val isValid = validateApiKey(apiKey, "gemini-2.0-flash-exp")
-            kotlinx.coroutines.delay(1300)
             if (isValid) {
                 sharedPreferences.edit().putString("GEMINI_API_KEY", apiKey).apply()
-                findNavController().navigate(R.id.action_settingsFragment_to_mainFragment)
+                binding.radioGroup.visibility = View.VISIBLE
             }
         }
 

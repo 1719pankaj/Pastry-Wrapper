@@ -11,8 +11,8 @@
         android:layout_width="wrap_content"
         android:layout_height="0dp"
         android:src="@drawable/ic_pastry"
-        android:scaleY="1.2"
-        android:scaleX="1.2"
+        android:scaleY="1.3"
+        android:scaleX="1.3"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent" />

@@ -9,6 +9,8 @@
         android:id="@+id/search_box"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:padding="8dp"
+        android:background="@drawable/floating_bg"
         android:hint="Search" />
 
     <androidx.recyclerview.widget.RecyclerView

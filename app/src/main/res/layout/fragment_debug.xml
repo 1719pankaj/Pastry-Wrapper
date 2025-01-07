@@ -6,45 +6,84 @@
     android:layout_height="match_parent"
     tools:context=".fragments.DebugFragment">
 
-    <!-- TODO: Update blank fragment layout -->
-    <TextView
-        android:id="@+id/message_tv"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:layout_margin="16dp"
-        android:text="@string/hello_blank_fragment"
-        app:layout_constraintBottom_toTopOf="@+id/thought_tv"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
     <TextView
         android:id="@+id/thought_tv"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_margin="16dp"
         android:text="@string/hello_blank_fragment"
-        app:layout_constraintBottom_toTopOf="@+id/run_test_BT"
+        android:textColor="@color/grey"
+        android:textStyle="italic"
+        android:scrollbars="vertical"
+        app:layout_constraintBottom_toTopOf="@+id/guideline"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/guideline" />
+        app:layout_constraintTop_toTopOf="parent"/>
 
+    <TextView
+        android:id="@+id/message_tv"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_margin="16dp"
+        android:text="@string/hello_blank_fragment"
+        android:textColor="@color/almost_black"
+        app:layout_constraintBottom_toTopOf="@+id/attachFileCB"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/guideline"/>
 
-    <Button
+    <EditText
+        android:id="@+id/debugMessageET"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="12dp"
+        android:background="@drawable/floating_bg"
+        android:hint="Message"
+        android:padding="8dp"
+        app:layout_constraintBottom_toBottomOf="@+id/run_test_BT"
+        app:layout_constraintEnd_toStartOf="@+id/run_test_BT"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/run_test_BT" />
+
+    <ImageButton
         android:id="@+id/run_test_BT"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Run"
+        android:background="@drawable/round_button"
+        android:backgroundTint="@color/black"
+        android:contentDescription="Send"
+        android:padding="8dp"
+        android:scaleType="centerInside"
+        android:src="@drawable/ic_send"
         android:layout_margin="12dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent" />
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/guideline"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        app:layout_constraintGuide_begin="320dp" />
+        app:layout_constraintGuide_begin="439dp" />
+
+    <CheckBox
+        android:id="@+id/attachFileCB"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginBottom="16dp"
+        android:text="File Attachment"
+        app:layout_constraintBottom_toTopOf="@+id/debugMessageET"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <CheckBox
+        android:id="@+id/AttachImageCB"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginBottom="16dp"
+        android:text="Image Attachment"
+        app:layout_constraintBottom_toTopOf="@+id/debugMessageET"
+        app:layout_constraintStart_toEndOf="@+id/attachFileCB" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

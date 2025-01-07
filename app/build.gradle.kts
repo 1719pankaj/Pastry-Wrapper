@@ -70,6 +70,7 @@ dependencies {
     implementation(libs.linkify) {
         exclude(group = "com.atlassian.commonmark", module = "commonmark")
     }
+                                   //DO NOT FUCKING UPDATE THIS
     implementation("com.atlassian.commonmark:commonmark:0.13.0")
 
     // For text extraction
