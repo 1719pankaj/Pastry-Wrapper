@@ -22,6 +22,7 @@
 - [ ] Pass parameters from ModelConfig
 - [ ] Figure out how to not send entire chat history.
 - [x] Add Mic support
+- [ ] Handle failed request in UI
 
 ## Minor
 - [x] Fix/Disable dark mode.
@@ -30,3 +31,4 @@
 - [x] Individual messages know what model they are from.
 - [x] Add logic to vanity buttons.
 - [x] Add gemini API link to settings frag.
+- [ ] Add Crashalytics
