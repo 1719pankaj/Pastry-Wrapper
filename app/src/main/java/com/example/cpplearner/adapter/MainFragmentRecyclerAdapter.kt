@@ -5,6 +5,7 @@ import android.annotation.SuppressLint
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
+import android.text.method.LinkMovementMethod
 import android.util.Log
 import android.view.Gravity
 import android.view.LayoutInflater
@@ -46,6 +47,7 @@ class MainFragmentRecyclerAdapter(private var messages: List<Message>,
     inner class MessageViewHolder(private val binding: ItemMessageBinding) : RecyclerView.ViewHolder(binding.root) {
 
         init {
+            binding.textViewMessage.movementMethod = LinkMovementMethod.getInstance()
             binding.textViewMessage.setOnTouchListener { view, event ->
                 if (event.action == MotionEvent.ACTION_DOWN) {
                     touchX = event.rawX

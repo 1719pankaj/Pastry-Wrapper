@@ -2,6 +2,7 @@ package com.example.cpplearner.fragments
 
 import android.os.Bundle
 import android.text.method.ScrollingMovementMethod
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -16,6 +17,7 @@ import com.google.ai.client.generativeai.type.generationConfig
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import kotlin.math.log
 
 class DebugFragment : Fragment() {
 
@@ -31,7 +33,7 @@ class DebugFragment : Fragment() {
         binding.messageTv.movementMethod = ScrollingMovementMethod()
 
 
-        DEBUG_API_KEY = "AIzaSyDyGLtUDcwOR_wnz3jP3_H9OLQfPPf5o_4"
+        DEBUG_API_KEY = "AIzaSyCrMe41shwixfO9Oo8o8ciwkceSr9apOXs"
         val chatHistory = listOf(
 //            content("user") {
 //                text("Hii")

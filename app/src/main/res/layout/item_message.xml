@@ -3,6 +3,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:paddingHorizontal="8dp"
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
@@ -45,26 +46,31 @@
             android:textSize="14sp"
             android:textStyle="italic"
             android:visibility="gone"
+            android:clickable="true"
+            android:focusable="true"
             app:layout_constraintBottom_toTopOf="@+id/textViewMessage"
             app:layout_constraintStart_toStartOf="@+id/textViewMessage"
             tools:text="Thought process"
             tools:visibility="visible" />
 
-                <TextView
-                    android:id="@+id/textViewMessage"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:autoLink="web"
-                    android:padding="8dp"
-                    android:textColor="@color/almost_black"
-                    android:textColorLink="@color/linkColor"
-                    android:background="@drawable/floating_bg"
-                    android:textIsSelectable="true"
-                    android:textSize="16sp"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    tools:text="Message" />
+        <TextView
+            android:id="@+id/textViewMessage"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="8dp"
+            android:textColor="@color/almost_black"
+            android:textColorLink="@color/linkColor"
+            android:background="@drawable/floating_bg"
+            android:textIsSelectable="true"
+            android:textSize="16sp"
+            android:clickable="true"
+            android:focusable="true"
+            android:lineSpacingMultiplier="1.2"
+            android:autoLink="none"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            tools:text="Message" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

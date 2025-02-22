@@ -53,6 +53,7 @@ dependencies {
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)
     implementation(libs.androidx.exifinterface)
+    implementation(libs.androidx.ui.graphics.android)
     ksp(libs.androidx.room.compiler)
 
     implementation("io.noties.markwon:core:4.6.2") {

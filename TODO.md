@@ -16,11 +16,10 @@
 
 ## Major
 - [x] Option to switch models in settings.
-- [ ] Add code formatting MD++.
-  - Half baked.
+- [x] Add code formatting MD++.
 - [x] Add handling logic for thinking models.
 - [x] Multi-modal inputs for chat.
-- [ ] Pass parameters from ModelConfig.
+- [x] Pass parameters from ModelConfig.
 - [ ] Figure out how to not send entire chat history.
 - [x] Add Mic support.
 - [ ] Handle failed request in UI.

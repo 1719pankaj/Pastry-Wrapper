@@ -29,6 +29,7 @@ room = "2.6.1"
 securityCrypto = "1.1.0-alpha06"
 securityCryptoVersion = "1.1.0-alpha03"
 exifinterface = "1.3.6"
+uiGraphicsAndroid = "1.7.8"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -72,6 +73,7 @@ recycler = { module = "io.noties.markwon:recycler" }
 recycler-table = { module = "io.noties.markwon:recycler-table" }
 syntax-highlight = { module = "io.noties.markwon:syntax-highlight", version.ref = "notiesCore" }
 androidx-exifinterface = { group = "androidx.exifinterface", name = "exifinterface", version.ref = "exifinterface" }
+androidx-ui-graphics-android = { group = "androidx.compose.ui", name = "ui-graphics-android", version.ref = "uiGraphicsAndroid" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
