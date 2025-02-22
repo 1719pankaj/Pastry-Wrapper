@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/action_camera"
+        android:title="Camera"
+        android:icon="@drawable/ic_camera" />
+    <item
+        android:id="@+id/action_file"
+        android:title="File"
+        android:icon="@drawable/ic_file" />
+    <item
+        android:id="@+id/action_photo"
+        android:title="Photo"
+        android:icon="@drawable/ic_image" />
+</menu>

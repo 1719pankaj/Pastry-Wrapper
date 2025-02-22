@@ -16,7 +16,9 @@ import android.widget.ImageButton
 import android.widget.RadioButton
 import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.core.view.marginStart
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.coroutineScope
 import androidx.lifecycle.lifecycleScope
@@ -61,9 +63,9 @@ class SettingsFragment : Fragment() {
 
         val apiKey = sharedPreferences.getString("GEMINI_API_KEY", null)
         if (apiKey.isNullOrEmpty()) {
-            binding.radioGroup.visibility = View.GONE
+            binding.scrollView2.visibility = View.GONE
         } else {
-            binding.radioGroup.visibility = View.VISIBLE
+            binding.scrollView2.visibility = View.VISIBLE
         }
 
         binding.editTextMessage.addTextChangedListener(object : TextWatcher {
@@ -85,9 +87,21 @@ class SettingsFragment : Fragment() {
             openAiStudio()
         }
 
-        addRadioButtons(18)
+        addModels()
 
         return binding.root
+    }
+
+    override fun onStart() {
+        super.onStart()
+        // Hide the ActionBar
+        (activity as AppCompatActivity?)?.supportActionBar?.hide()
+    }
+
+    override fun onStop() {
+        super.onStop()
+        // Show the ActionBar again when the fragment is not visible
+        (activity as AppCompatActivity?)?.supportActionBar?.show()
     }
 
     fun openAiStudio() {
@@ -97,42 +111,25 @@ class SettingsFragment : Fragment() {
         startActivity(i)
     }
 
-    private fun addRadioButtons(number: Int) {
-        val radioGroup = binding.radioGroup
-        radioGroup.removeAllViews()
+    private fun addModels() {
+        val modelsContainer = binding.modelsContainer
+        modelsContainer.removeAllViews()
 
-        // Get current selected model from SharedPreferences
         val currentModel = sharedPreferences.getString("SELECTED_MODEL", ModelConfigProvider.getDefaultModel().modelName)
 
         ModelConfigProvider.getModels().forEach { modelConfig ->
-            val radioButtonLayout = layoutInflater.inflate(R.layout.item_model_radio, radioGroup, false)
-            val geminiRadioButton = radioButtonLayout.findViewById<RadioButton>(R.id.geminiRadioButton)
-            val modelInfoButton = radioButtonLayout.findViewById<ImageButton>(R.id.modelInfoButton)
+            val modelView = layoutInflater.inflate(R.layout.item_model, modelsContainer, false)
 
-            // Remove the RadioButton from its parent
-            (geminiRadioButton.parent as? ViewGroup)?.removeView(geminiRadioButton)
+            val modelNameLabel = modelView.findViewById<TextView>(R.id.modelNameLabel)
+            val infoButton = modelView.findViewById<ImageButton>(R.id.infoButton)
 
-            // Add RadioButton directly to RadioGroup first
-            radioGroup.addView(geminiRadioButton)
+            modelNameLabel.text = modelConfig.displayName
 
-            // Then add the layout with the remaining views
-            radioGroup.addView(radioButtonLayout)
-
-            geminiRadioButton.id = View.generateViewId()
-            geminiRadioButton.text = modelConfig.displayName
-            geminiRadioButton.isChecked = modelConfig.modelName == currentModel
-
-            modelInfoButton.setOnClickListener {
+            infoButton.setOnClickListener {
                 showModelInfoDialog(modelConfig)
             }
 
-            geminiRadioButton.setOnCheckedChangeListener { buttonView, isChecked ->
-                if (isChecked) {
-                    sharedPreferences.edit()
-                        .putString("SELECTED_MODEL", modelConfig.modelName)
-                        .apply()
-                }
-            }
+            modelsContainer.addView(modelView)
         }
     }
 
@@ -166,20 +163,19 @@ class SettingsFragment : Fragment() {
         dialog.show()
     }
 
-
     private fun saveApiKey(apiKey: String) {
         lifecycleScope.launch {
             val isValid = validateApiKey(apiKey, "gemini-2.0-flash-exp")
             if (isValid) {
                 sharedPreferences.edit().putString("GEMINI_API_KEY", apiKey).apply()
-                binding.radioGroup.visibility = View.VISIBLE
+                binding.scrollView2.visibility = View.VISIBLE
+                addModels() // Refresh models list
                 lifecycleScope.launch {
-                    delay(1300) // Wait for 1300 milliseconds
+                    delay(1300)
                     findNavController().navigate(R.id.action_settingsFragment_to_mainFragment)
                 }
             }
         }
-
     }
 
     private suspend fun validateApiKey(apiKey: String, modelName: String): Boolean {

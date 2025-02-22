@@ -9,6 +9,7 @@
 - [ ] The main chat recycler is glitchy when streaming messages.
 - [ ] Recycler scrolls up when soft keyboard appears.
 - [x] When coming back from settings, the messages are not displayed until a new message is sent.
+- [ ] Settings menu gets buried under the recycler view.
 
 
 # Features
@@ -19,10 +20,11 @@
   - Half baked.
 - [x] Add handling logic for thinking models.
 - [x] Multi-modal inputs for chat.
-- [ ] Pass parameters from ModelConfig
+- [ ] Pass parameters from ModelConfig.
 - [ ] Figure out how to not send entire chat history.
-- [x] Add Mic support
-- [ ] Handle failed request in UI
+- [x] Add Mic support.
+- [ ] Handle failed request in UI.
+- [ ] Edit and regenerate messages.
 
 ## Minor
 - [x] Fix/Disable dark mode.
@@ -31,4 +33,4 @@
 - [x] Individual messages know what model they are from.
 - [x] Add logic to vanity buttons.
 - [x] Add gemini API link to settings frag.
-- [ ] Add Crashalytics
+- [ ] Add Crashlytics.

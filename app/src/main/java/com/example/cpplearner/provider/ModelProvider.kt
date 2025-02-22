@@ -5,15 +5,17 @@ import com.google.ai.client.generativeai.type.generationConfig
 
 object ModelProvider {
     fun getModel(modelName: String, apiKey: String): GenerativeModel {
+        val modelConfig = ModelConfigProvider.getModelByName(modelName) ?: ModelConfigProvider.getDefaultModel()
+
         return GenerativeModel(
             modelName,
             apiKey,
             generationConfig = generationConfig {
-                temperature = 1f
-                topK = 40
-                topP = 0.95f
-                maxOutputTokens = 8192
-                responseMimeType = "text/plain"
+                temperature = modelConfig.temperature
+                topK = modelConfig.topK
+                topP = modelConfig.topP
+                maxOutputTokens = modelConfig.maxOutputTokens
+                responseMimeType = modelConfig.responseMimeType
             }
         )
     }

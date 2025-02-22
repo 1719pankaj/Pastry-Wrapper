@@ -19,6 +19,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.PopupMenu
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.PickVisualMediaRequest
@@ -120,18 +121,7 @@ class MainFragment : Fragment() {
             findNavController().navigate(R.id.action_mainFragment_to_debugFragment)
             true
         }
-        binding.buttonCamera.setOnClickListener {
-            openQuickTools(false)
-            takePictureLauncher.launch(null)
-        }
-        binding.buttonImage.setOnClickListener {
-            openQuickTools(false)
-            pickSingleImage()
-        }
-        binding.buttonFile.setOnClickListener {
-            openQuickTools(false)
-            pickSingleFile()
-        }
+
         binding.imageViewMessage.setOnLongClickListener {
             currentBitmap = null
             binding.imageViewMessage.setImageBitmap(null)
@@ -147,10 +137,29 @@ class MainFragment : Fragment() {
             true
         }
         binding.buttonPlus.setOnClickListener {
-            openQuickTools(true)
+            showUploadMenu()
         }
-        binding.editTextMessage.setOnClickListener {
-            openQuickTools(false)
+        binding.modelSelectedLabel.setSelected(true)
+
+        binding.modelSelectedLabel.text = ModelConfigProvider.getModels().find {
+            it.modelName == getEncryptedPreferences().getString("SELECTED_MODEL", ModelConfigProvider.getDefaultModel().modelName)
+        }?.displayName ?: ModelConfigProvider.getDefaultModel().displayName
+        binding.modelPicker.setOnClickListener {
+            val popupMenu = PopupMenu(requireContext(), binding.modelPicker)
+            populateModelPickerMenu(popupMenu)
+
+            popupMenu.setOnMenuItemClickListener { menuItem ->
+                val selectedModel = ModelConfigProvider.getModels().find { it.displayName == menuItem.title }
+                selectedModel?.let {
+                    binding.modelSelectedLabel.text = it.displayName
+                    val prefs = getEncryptedPreferences()
+                    prefs.edit().putString("SELECTED_MODEL", it.modelName).apply()
+                    initializeGemini()  // Reinitialize Gemini with the new model
+                }
+                true
+            }
+
+            popupMenu.show()
         }
 
         return binding.root
@@ -236,11 +245,42 @@ class MainFragment : Fragment() {
         speechRecognizerManager.destroy()
     }
 
-    private fun openQuickTools(boolean: Boolean) {
-        binding.buttonPlus.visibility = if (boolean) View.GONE else View.VISIBLE
-        binding.buttonFile.visibility = if (boolean) View.VISIBLE else View.GONE
-        binding.buttonCamera.visibility = if (boolean) View.VISIBLE else View.GONE
-        binding.buttonImage.visibility = if (boolean) View.VISIBLE else View.GONE
+
+    private fun showUploadMenu() {
+        val popupMenu = PopupMenu(requireContext(), binding.buttonPlus)
+        popupMenu.menuInflater.inflate(R.menu.upload_menu, popupMenu.menu)
+
+        // Force show icons in popup menu
+        try {
+            val field = PopupMenu::class.java.getDeclaredField("mPopup")
+            field.isAccessible = true
+            val menuPopupHelper = field.get(popupMenu)
+            val classPopupHelper = Class.forName("com.android.internal.view.menu.MenuPopupHelper")
+            val setForceIcons = classPopupHelper.getDeclaredMethod("setForceShowIcon", Boolean::class.java)
+            setForceIcons.invoke(menuPopupHelper, true)
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+
+        popupMenu.setOnMenuItemClickListener { menuItem ->
+            when (menuItem.itemId) {
+                R.id.action_camera -> {
+                    takePictureLauncher.launch(null)
+                    true
+                }
+                R.id.action_photo -> {
+                    pickSingleImage()
+                    true
+                }
+                R.id.action_file -> {
+                    pickSingleFile()
+                    true
+                }
+                else -> false
+            }
+        }
+
+        popupMenu.show()
     }
 
     private fun pickSingleImage() {
@@ -607,5 +647,12 @@ class MainFragment : Fragment() {
                 if (isListening) R.color.active_green else R.color.light_grey
             )
         )
+    }
+
+    private fun populateModelPickerMenu(popupMenu: PopupMenu) {
+        val models = ModelConfigProvider.getModels()
+        models.forEach { modelConfig ->
+            popupMenu.menu.add(0, View.generateViewId(), 0, modelConfig.displayName)
+        }
     }
 }

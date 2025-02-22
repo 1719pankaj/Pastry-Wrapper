@@ -145,12 +145,6 @@ class MainActivity : AppCompatActivity() {
                 R.id.mainFragment -> {
                     // Set up action bar for mainFragment
                     supportActionBar?.customView?.findViewById<ImageView>(R.id.newChat)?.visibility = View.VISIBLE
-                    supportActionBar?.customView?.findViewById<ImageView>(R.id.menu)?.apply {
-                        visibility = View.VISIBLE
-                        setOnClickListener {
-                            navController.navigate(R.id.action_mainFragment_to_settingsFragment)
-                        }
-                    }
                     drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED)
                     findViewById<ImageView>(R.id.pastry).setOnClickListener {
                         drawerLayout.openDrawer(GravityCompat.START)
@@ -159,7 +153,6 @@ class MainActivity : AppCompatActivity() {
                 R.id.settingsFragment -> {
                     // Set up action bar for settingsFragment
                     supportActionBar?.customView?.findViewById<ImageView>(R.id.newChat)?.visibility = View.INVISIBLE
-                    supportActionBar?.customView?.findViewById<ImageView>(R.id.menu)?.visibility = View.INVISIBLE
                     drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
                     findViewById<ImageView>(R.id.pastry).setOnClickListener(null)
                 }
@@ -318,21 +311,10 @@ class MainActivity : AppCompatActivity() {
     fun updateNewChatButtonState(enable: Boolean) {
         val newChatButton = supportActionBar?.customView?.findViewById<ImageView>(R.id.newChat)
         if(enable) {
-            newChatButton?.isEnabled = true
-            newChatButton?.setColorFilter(
-                ContextCompat.getColor(
-                    applicationContext,
-                    R.color.black
-                )
-            )
+            newChatButton?.visibility = View.VISIBLE
+
         } else {
-            newChatButton?.isEnabled = false
-            newChatButton?.setColorFilter(
-                ContextCompat.getColor(
-                    applicationContext,
-                    R.color.disabled_grey
-                )
-            )
+            newChatButton?.visibility = View.GONE
         }
     }
 
