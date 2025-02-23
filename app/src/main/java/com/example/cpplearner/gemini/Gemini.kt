@@ -4,6 +4,7 @@ import android.graphics.Bitmap
 import android.util.Log
 import com.example.cpplearner.provider.ModelConfig
 import com.example.cpplearner.provider.ModelProvider
+import com.example.cpplearner.roomDB.Message
 import com.google.ai.client.generativeai.GenerativeModel
 import com.google.ai.client.generativeai.type.asTextOrNull
 import com.google.ai.client.generativeai.type.content
@@ -27,6 +28,15 @@ class Gemini(val apiKey: String, val modelName: String) {
             text("Okay, hii! Sounds good. I understand this is a dev/debug session, so I'll keep my responses concise and not go overboard on tokens unless you say \"banana\". And no worries about the \"hiis,\" I'm here for you. Let's get this Gemini API wrapper rolling!\n\nSo, what are we working on today? What's the first step you're thinking of taking?\n")
         },
     )
+
+    fun loadChatHistory(messageList: List<Message>) {
+        chatHistory.clear()
+        messageList.forEach {
+            chatHistory.add(content(if(it.isUser) "user" else "model") {
+                text(it.text)
+            })
+        }
+    }
 
     suspend fun sendMessage(message: String): String? {
         val chat = model.startChat()

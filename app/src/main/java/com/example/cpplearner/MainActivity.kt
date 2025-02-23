@@ -174,9 +174,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setupChatList(chatsRecyclerView: RecyclerView) {
-        val navigationView: NavigationView = findViewById(R.id.navigation_view)
-        val headerView = navigationView.getHeaderView(0)
-//        val chatsRecyclerView = headerView.findViewById<RecyclerView>(R.id.chats_recycler_view)
         chatListAdapter = ChatListAdapter(emptyList(), { chatId ->
             lifecycleScope.launch {
                 loadChat(chatId)
@@ -188,12 +185,15 @@ class MainActivity : AppCompatActivity() {
 
         chatsRecyclerView.apply {
             layoutManager = LinearLayoutManager(this@MainActivity).apply {
-                reverseLayout = false
+                reverseLayout = true  // Set to false to maintain natural order
+                stackFromEnd = true   // Items will start from the bottom
             }
             adapter = chatListAdapter
         }
 
-        // Load chat list
+        // Optional: Add padding to bottom to ensure last item is fully visible
+        chatsRecyclerView.clipToPadding = false
+
         lifecycleScope.launch {
             updateChatList()
         }
@@ -233,7 +233,6 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    // In MainActivity.kt
     private fun setupSettingsButtons(settingsButton: ImageButton, userAccountButton: ImageButton) {
         val navigationView: NavigationView = findViewById(R.id.navigation_view)
         val headerView = navigationView.getHeaderView(0)

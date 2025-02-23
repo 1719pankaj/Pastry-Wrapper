@@ -18,6 +18,7 @@ import android.widget.Toast
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.content.ContextCompat
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.cpplearner.R
@@ -61,6 +62,7 @@ class MainFragmentRecyclerAdapter(private var messages: List<Message>,
                 true
             }
         }
+
 
         fun bind(message: Message) {
             if (!::markwon.isInitialized) {
@@ -283,13 +285,17 @@ class MainFragmentRecyclerAdapter(private var messages: List<Message>,
     }
 
     @SuppressLint("NotifyDataSetChanged")
-    fun updateMessages(newMessages: List<Message>, onMessagesUpdated: () -> Unit) {
+    fun updateMessages(newMessages: List<Message>, recyclerView: RecyclerView, onMessagesUpdated: () -> Unit) {
+        val wasAtBottom = (recyclerView.layoutManager as LinearLayoutManager)
+            .findLastCompletelyVisibleItemPosition() == messages.size - 1
+
         messages = newMessages
-        // Use notifyItemChanged for the last item instead of full dataset change
-        if (messages.isNotEmpty()) {
-            notifyItemChanged(messages.size - 1)
-        } else {
-            notifyDataSetChanged()
+        notifyDataSetChanged()
+
+        if (messages.isNotEmpty() && wasAtBottom) {
+            recyclerView.post {
+                recyclerView.scrollToPosition(messages.size - 1)
+            }
         }
         onMessagesUpdated()
     }

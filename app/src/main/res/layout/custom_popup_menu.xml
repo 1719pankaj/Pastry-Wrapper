@@ -30,6 +30,17 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/menu_copy" />
 
+    <TextView
+        android:id="@+id/menu_edit"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="8dp"
+        android:drawableStart="@drawable/ic_edit"
+        android:text="Edit"
+        android:textColor="@color/dark_grey"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/menu_regenerate" />
+
     <View
         android:id="@+id/lineandbreak"
         android:layout_width="0dp"
@@ -37,7 +48,7 @@
         android:background="@color/dark_grey"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/menu_regenerate" />
+        app:layout_constraintTop_toBottomOf="@+id/menu_edit" />
 
     <TextView
         android:id="@+id/menu_model_name"

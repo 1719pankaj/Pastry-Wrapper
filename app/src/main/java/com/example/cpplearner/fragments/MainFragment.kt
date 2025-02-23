@@ -9,6 +9,7 @@ import android.content.res.ColorStateList
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Matrix
+import android.graphics.Rect
 import android.net.Uri
 import android.os.Bundle
 import android.provider.OpenableColumns
@@ -75,14 +76,44 @@ class MainFragment : Fragment() {
     private lateinit var speechRecognizerManager: SpeechRecognizerManager
     private lateinit var recordAudioPermissionLauncher: ActivityResultLauncher<String>
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
+    private var isKeyboardOpen = false
+    private var wasAtBottomBeforeKeyboard = false
+
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         binding = FragmentMainBinding.inflate(inflater, container, false)
         db = Room.databaseBuilder(requireContext(), AppDatabase::class.java, "messages-db").build()
         messageDao = db.messageDao()
+
+        val rootView = binding.constraintLayout // Reference your root ConstraintLayout
+        rootView.viewTreeObserver.addOnGlobalLayoutListener {
+            val rect = Rect()
+            rootView.getWindowVisibleDisplayFrame(rect)
+            val screenHeight = rootView.rootView.height
+            val keypadHeight = screenHeight - rect.bottom
+
+            // Check if keyboard state changed
+            if (keypadHeight > screenHeight * 0.15) { // Keyboard is open
+                if (!isKeyboardOpen) {
+                    // Store scroll position before keyboard opens
+                    val layoutManager = binding.recyclerView.layoutManager as LinearLayoutManager
+                    wasAtBottomBeforeKeyboard = layoutManager.findLastCompletelyVisibleItemPosition() == adapter.itemCount - 1
+                }
+                isKeyboardOpen = true
+
+                // If was at bottom, scroll after layout
+                if (wasAtBottomBeforeKeyboard) {
+                    binding.recyclerView.post {
+                        binding.recyclerView.scrollToPosition(adapter.itemCount - 1)
+                    }
+                }
+            } else {
+                if (isKeyboardOpen) {
+                    // Keyboard just closed, restore state
+                    isKeyboardOpen = false
+                    wasAtBottomBeforeKeyboard = false
+                }
+            }
+        }
 
         initializeGemini()
 
@@ -383,7 +414,7 @@ class MainFragment : Fragment() {
     fun onChatDeleted(chatId: Long) {
         if (currentChatId == chatId) {
             currentChatId = 0
-            adapter.updateMessages(emptyList()) { }
+            adapter.updateMessages(emptyList(), binding.recyclerView) { }
             (activity as? MainActivity)?.let {
                 it.updateNewChatButtonState(false)
                 it.lifecycleScope.launch {
@@ -594,7 +625,7 @@ class MainFragment : Fragment() {
             val messages = withContext(Dispatchers.IO) {
                 messageDao.getMessagesForChat(currentChatId)
             }
-            adapter.updateMessages(messages) {
+            adapter.updateMessages(messages, binding.recyclerView) {
                 // Check if we're near the bottom before scrolling
                 val layoutManager = binding.recyclerView.layoutManager as LinearLayoutManager
                 val lastVisibleItem = layoutManager.findLastVisibleItemPosition()
@@ -619,8 +650,16 @@ class MainFragment : Fragment() {
             if (!::messageDao.isInitialized)
                 messageDao = db.messageDao()
             val messages = messageDao.getMessagesForChat(currentChatId)
+
+            if (messages.isNotEmpty()) {
+                if (!::gemini.isInitialized) {
+                    initializeGemini()
+                }
+                gemini.loadChatHistory(messages)
+            }
+
             withContext(Dispatchers.Main) {
-                adapter.updateMessages(messages) {
+                adapter.updateMessages(messages, binding.recyclerView) {
                     if (messages.isNotEmpty()) {
                         binding.recyclerView.scrollToPosition(messages.size - 1)
                     }

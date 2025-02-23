@@ -5,11 +5,13 @@
 - [x] Old chat sessions are not displayed in the chat list.
 - [ ] Fix Thinking model splitting (Awaiting support from Gemini SDK)
 
-## Minor
-- [ ] The main chat recycler is glitchy when streaming messages.
+## Minor[
+- [x] The main chat recycler is glitchy when streaming messages.
 - [ ] Recycler scrolls up when soft keyboard appears.
 - [x] When coming back from settings, the messages are not displayed until a new message is sent.
 - [x] Settings menu gets buried under the recycler view.
+- [x] ChatList is USD.
+- [x] Context is not loaded in old chats.
 
 
 # Features

@@ -11,6 +11,8 @@
         android:id="@+id/recyclerView"
         android:layout_width="0dp"
         android:layout_height="0dp"
+        android:transcriptMode="disabled"
+        android:descendantFocusability="blocksDescendants"
         android:layout_marginBottom="10dp"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toTopOf="@id/layoutMessageInput"
