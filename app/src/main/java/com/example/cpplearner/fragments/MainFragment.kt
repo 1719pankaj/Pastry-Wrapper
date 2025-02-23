@@ -198,6 +198,21 @@ class MainFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        // recorder permission initializer
+        recordAudioPermissionLauncher = registerForActivityResult(
+            ActivityResultContracts.RequestPermission()
+        ) { isGranted ->
+            if (isGranted) {
+                speechRecognizerManager.startListening()
+            } else {
+                Toast.makeText(
+                    requireContext(),
+                    "Audio permission is required for speech recognition",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        }
+
         lifecycleScope.launch {
             if (!::db.isInitialized) {
                 db = Room.databaseBuilder(requireContext(), AppDatabase::class.java, "messages-db")
