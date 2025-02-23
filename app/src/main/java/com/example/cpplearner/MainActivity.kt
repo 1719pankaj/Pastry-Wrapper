@@ -10,6 +10,7 @@ import android.view.View
 import android.view.WindowInsetsController
 import android.widget.ImageView
 import android.widget.EditText
+import android.widget.ImageButton
 import androidx.activity.result.ActivityResultLauncher
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -57,7 +58,14 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         drawerLayout = findViewById(R.id.drawer_layout)
+
+        // Calculate and set navigation drawer width (80% of screen width)
         val navigationView: NavigationView = findViewById(R.id.navigation_view)
+        val displayMetrics = resources.displayMetrics
+        val drawerWidth = (displayMetrics.widthPixels * 0.8).toInt()
+        val params = navigationView.layoutParams as DrawerLayout.LayoutParams
+        params.width = drawerWidth
+        navigationView.layoutParams = params
 
         val navigationHost = supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
         val navController = navigationHost.navController
@@ -82,27 +90,8 @@ class MainActivity : AppCompatActivity() {
             window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
         }
 
-        setupChatList()
+        setupNavigation()
         setupNewChatButton()
-        setupSearchBox()
-
-        navigationView.setNavigationItemSelectedListener { menuItem ->
-            val navController = findNavController(R.id.nav_host_fragment)
-            when (menuItem.itemId) {
-                R.id.nav_settings -> {
-                    // Check if the current destination is not settingsFragment
-                    if (navController.currentDestination?.id != R.id.settingsFragment) {
-                        navController.navigate(R.id.action_mainFragment_to_settingsFragment)
-                    }
-                    drawerLayout.closeDrawer(GravityCompat.START)
-                    true
-                }
-                else -> {
-                    drawerLayout.closeDrawer(GravityCompat.START)
-                    false
-                }
-            }
-        }
 
         // Check if the encrypted API key exists
         val masterKeyAlias = MasterKeys.getOrCreate(MasterKeys.AES256_GCM_SPEC)
@@ -131,6 +120,23 @@ class MainActivity : AppCompatActivity() {
                 db = Room.databaseBuilder(applicationContext, AppDatabase::class.java, "messages-db").build()
             db.chatDao().deleteEmptyChats()
         }
+    }
+
+    private fun setupNavigation() {
+        val navigationView: NavigationView = findViewById(R.id.navigation_view)
+        val menuContent = layoutInflater.inflate(R.layout.nav_header, navigationView, false)
+        navigationView.addView(menuContent)
+
+        // Update your view references
+        val searchBox: EditText = menuContent.findViewById(R.id.search_box)
+        val chatsRecyclerView: RecyclerView = menuContent.findViewById(R.id.chats_recycler_view)
+        val settingsButton: ImageButton = menuContent.findViewById(R.id.settings_drawer)
+        val userAccountButton: ImageButton = menuContent.findViewById(R.id.user_account_settings_drawer)
+
+        // Call your existing setup methods with the new references
+        setupChatList(chatsRecyclerView)
+        setupSearchBox(searchBox)
+        setupSettingsButtons(settingsButton, userAccountButton)
     }
 
     private fun setupActionBar(navController: NavController) {
@@ -167,10 +173,10 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun setupChatList() {
+    private fun setupChatList(chatsRecyclerView: RecyclerView) {
         val navigationView: NavigationView = findViewById(R.id.navigation_view)
         val headerView = navigationView.getHeaderView(0)
-        val chatsRecyclerView = headerView.findViewById<RecyclerView>(R.id.chats_recycler_view)
+//        val chatsRecyclerView = headerView.findViewById<RecyclerView>(R.id.chats_recycler_view)
         chatListAdapter = ChatListAdapter(emptyList(), { chatId ->
             lifecycleScope.launch {
                 loadChat(chatId)
@@ -182,7 +188,7 @@ class MainActivity : AppCompatActivity() {
 
         chatsRecyclerView.apply {
             layoutManager = LinearLayoutManager(this@MainActivity).apply {
-                reverseLayout = true
+                reverseLayout = false
             }
             adapter = chatListAdapter
         }
@@ -207,10 +213,12 @@ class MainActivity : AppCompatActivity() {
     }
 
     suspend fun createNewChat() {
-        withContext(Dispatchers.IO) {
-            val chatDao = db.chatDao()
-            val newChat = Chat()
-            val chatId = chatDao.insertChat(newChat)
+        try {
+            val chatId = withContext(Dispatchers.IO) {
+                val chatDao = db.chatDao()
+                val newChat = Chat()
+                chatDao.insertChat(newChat)
+            }
 
             withContext(Dispatchers.Main) {
                 val navController = findNavController(R.id.nav_host_fragment)
@@ -220,13 +228,35 @@ class MainActivity : AppCompatActivity() {
                 }
                 navController.navigate(R.id.mainFragment, bundle)
             }
+        } catch (e: Exception) {
+            Log.e("MainActivity", "Error creating new chat", e)
         }
     }
 
-    private fun setupSearchBox() {
+    // In MainActivity.kt
+    private fun setupSettingsButtons(settingsButton: ImageButton, userAccountButton: ImageButton) {
         val navigationView: NavigationView = findViewById(R.id.navigation_view)
         val headerView = navigationView.getHeaderView(0)
-        val searchBox: EditText = headerView.findViewById(R.id.search_box)
+
+//        val settingsButton = headerView.findViewById<ImageButton>(R.id.settings_drawer)
+//        val userAccountButton = headerView.findViewById<ImageButton>(R.id.user_account_settings_drawer)
+
+        val settingsClickListener = View.OnClickListener {
+            val navController = findNavController(R.id.nav_host_fragment)
+            if (navController.currentDestination?.id != R.id.settingsFragment) {
+                navController.navigate(R.id.action_mainFragment_to_settingsFragment)
+            }
+            drawerLayout.closeDrawer(GravityCompat.START)
+        }
+
+        settingsButton.setOnClickListener(settingsClickListener)
+        userAccountButton.setOnClickListener(settingsClickListener)
+    }
+
+    private fun setupSearchBox(searchBox: EditText) {
+        val navigationView: NavigationView = findViewById(R.id.navigation_view)
+        val headerView = navigationView.getHeaderView(0)
+//        val searchBox: EditText = headerView.findViewById(R.id.search_box)
 
         searchBox.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}

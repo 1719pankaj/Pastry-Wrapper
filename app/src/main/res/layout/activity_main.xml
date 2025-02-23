@@ -16,7 +16,7 @@
         app:layout_constraintTop_toTopOf="parent" />
 
 
-    <androidx.drawerlayout.widget.DrawerLayout
+    <com.example.cpplearner.customViews.CustomDrawerLayout
         android:id="@+id/drawer_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -29,12 +29,10 @@
 
         <com.google.android.material.navigation.NavigationView
             android:id="@+id/navigation_view"
-            android:layout_width="wrap_content"
+            android:layout_width="@dimen/nav_drawer_width"
             android:layout_height="match_parent"
-            android:layout_gravity="start"
-            app:headerLayout="@layout/nav_header"
-            app:menu="@menu/nav_menu" />
+            android:layout_gravity="start"/>
 
-    </androidx.drawerlayout.widget.DrawerLayout>
+    </com.example.cpplearner.customViews.CustomDrawerLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

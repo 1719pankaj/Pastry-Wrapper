@@ -9,7 +9,7 @@
 - [ ] The main chat recycler is glitchy when streaming messages.
 - [ ] Recycler scrolls up when soft keyboard appears.
 - [x] When coming back from settings, the messages are not displayed until a new message is sent.
-- [ ] Settings menu gets buried under the recycler view.
+- [x] Settings menu gets buried under the recycler view.
 
 
 # Features
@@ -33,3 +33,6 @@
 - [x] Add logic to vanity buttons.
 - [x] Add gemini API link to settings frag.
 - [ ] Add Crashlytics.
+- [x] Add app icon.
+- [x] Global swipe open drawer.
+ 

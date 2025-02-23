@@ -3,4 +3,5 @@
     <dimen name="code_block_padding">8dp</dimen>
     <dimen name="code_block_radius">16dp</dimen>
     <dimen name="four_dp">4dp</dimen>
+    <dimen name="nav_drawer_width">280dp</dimen>
 </resources>
